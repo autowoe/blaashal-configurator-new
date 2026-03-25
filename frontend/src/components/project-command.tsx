@@ -58,7 +58,7 @@ export function ProjectCommand() {
                 className="flex w-full items-center gap-2 rounded-md border px-3 py-2 text-sm text-muted-foreground"
             >
                 <RiSearchLine className="size-4" />
-                Zoeken...
+                Zoek projecten...
                 <kbd className="ml-auto text-xs">⌘K</kbd>
             </button>
 
