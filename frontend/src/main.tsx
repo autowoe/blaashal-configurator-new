@@ -8,11 +8,13 @@ import { ProjectList, ProjectListLoader } from "@/pages/ProjectList";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppLayout } from "@/pages/AppLayout";
+import { Error } from "./pages/Error";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <AppLayout />,
+    errorElement: <Error />,
     handle: { breadcrumb: "Home" },
     children: [
       {

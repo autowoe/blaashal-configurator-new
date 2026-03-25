@@ -1,20 +1,18 @@
 import * as React from "react"
-
-import { SearchForm } from "@/components/search-form"
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { NavLink } from "react-router"
+
+import { ProjectCommand } from "@/components/project-command"
 
 const data = {
   navMain: [
@@ -27,9 +25,9 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar {...props} className="bg-sidebar">
+    <Sidebar {...props}>
       <SidebarHeader className="flex items-center justify-center h-16 border-b">
-        <SearchForm />
+        <ProjectCommand />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
