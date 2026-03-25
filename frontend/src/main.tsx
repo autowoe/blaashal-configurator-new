@@ -1,14 +1,34 @@
-import { StrictMode } from "react"
-import { createRoot } from "react-dom/client"
+import "@/index.css"
 
-import "./index.css"
-import App from "./App.tsx"
-import { ThemeProvider } from "@/components/theme-provider.tsx"
+import { createRoot } from "react-dom/client"
+import { createBrowserRouter } from "react-router";
+import { RouterProvider } from "react-router/dom";
+
+import { ProjectList, ProjectListLoader } from "@/pages/ProjectList";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/theme-provider";
+import { AppLayout } from "@/pages/AppLayout";
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <AppLayout />,
+    handle: { breadcrumb: "Home" },
+    children: [
+      {
+        path: "/projects",
+        element: <ProjectList />,
+        loader: ProjectListLoader,
+        handle: { breadcrumb: "Projecten" },
+      },
+    ],
+  },
+])
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  <TooltipProvider>
     <ThemeProvider>
-      <App />
+      <RouterProvider router={router} />
     </ThemeProvider>
-  </StrictMode>
+  </TooltipProvider>
 )
