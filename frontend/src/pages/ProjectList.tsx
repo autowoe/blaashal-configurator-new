@@ -1,21 +1,18 @@
 import { columns } from "@/components/tables/projects/columns"
 import { DataTable } from "@/components/tables/projects/data-table"
+import type { PaginatedResponse } from "@/lib/types/generic"
 import type { Project } from "@/lib/types/project"
 import { useLoaderData } from "react-router"
 
-export const ProjectListLoader = async () => {
-    const res = await fetch("http://localhost:8000/api/projects")
-    if (!res.ok) throw new Response("Failed to load projects", { status: res.status })
-    return res.json() as Promise<Project[]>
-}
-
 export const ProjectList = () => {
-    const projects = useLoaderData()
-    console.log(projects)
+    const data = useLoaderData() as PaginatedResponse<Project>
 
     return (
         <div>
-            <DataTable columns={columns} data={projects} />
+            <DataTable
+                columns={columns}
+                data={data.results}
+            />
         </div>
     )
 }

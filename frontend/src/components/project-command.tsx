@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react"
-import { useNavigate } from "react-router"
+import { useEffect, useMemo, useState } from "react"
+import { useNavigate, useRouteLoaderData } from "react-router"
 import {
     CommandDialog,
     CommandInput,
@@ -9,11 +9,23 @@ import {
     Command,
 } from "@/components/ui/command"
 import { RiSearchLine } from "@remixicon/react"
+import { Button } from "./ui/button"
+
+type Project = { id: string; name: string }
 
 export function ProjectCommand() {
     const [open, setOpen] = useState(false)
     const [query, setQuery] = useState("")
-    const [results, setResults] = useState<{ id: string; name: string }[]>([])
+    const rootData = useRouteLoaderData("root") as
+        | { projects: Project[] }
+        | undefined
+
+    const initialResults = useMemo(
+        () => rootData?.projects.slice(0, 10) ?? [],
+        [rootData]
+    )
+
+    const [results, setResults] = useState<Project[]>(initialResults)
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -23,44 +35,48 @@ export function ProjectCommand() {
                 setOpen((open) => !open)
             }
         }
+
         document.addEventListener("keydown", down)
         return () => document.removeEventListener("keydown", down)
     }, [])
 
     useEffect(() => {
-        const fetchInitial = async () => {
-            const res = await fetch(`http://localhost:8000/api/projects`)
-            const data = await res.json()
-            setResults(data.slice(0, 10))
+        if (!query) {
+            setResults(initialResults)
         }
-
-        fetchInitial()
-    }, [])
+    }, [query, initialResults])
 
     const handleSearch = async (value: string) => {
         setQuery(value)
-        if (!value) {
-            setResults([])
+
+        if (!value.trim()) {
+            setResults(initialResults)
             return
         }
 
         const res = await fetch(
-            `http://localhost:8000/api/projects?search=${value}`
+            `http://localhost:8000/api/projects?search=${encodeURIComponent(value)}`
         )
-        const data = await res.json()
+
+        if (!res.ok) {
+            setResults([])
+            return
+        }
+
+        const data = (await res.json()) as Project[]
         setResults(data.slice(0, 10))
     }
 
     return (
         <>
-            <button
+            <Button
                 onClick={() => setOpen(true)}
-                className="flex w-full items-center gap-2 rounded-md border px-3 py-2 text-sm text-muted-foreground"
+                className="w-full h-10"
             >
                 <RiSearchLine className="size-4" />
                 Zoek projecten...
                 <kbd className="ml-auto text-xs">⌘K</kbd>
-            </button>
+            </Button>
 
             <CommandDialog open={open} onOpenChange={setOpen}>
                 <Command>
