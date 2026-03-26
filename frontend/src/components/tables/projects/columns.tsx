@@ -4,6 +4,7 @@ import type { ColumnDef } from "@tanstack/react-table"
 
 import type { Project } from "@/lib/types/project"
 import { ActionCell } from "@/components/tables/projects/action-cell"
+import { ProjectStatusBadgeCell } from "./project-status-badge"
 
 export const columns: ColumnDef<Project>[] = [
     {
@@ -13,6 +14,11 @@ export const columns: ColumnDef<Project>[] = [
     {
         accessorKey: "organization.name",
         header: "Organisatie"
+    },
+    {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ row }) => <ProjectStatusBadgeCell row={row} />
     },
     {
         id: "actions",

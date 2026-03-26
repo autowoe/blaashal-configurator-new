@@ -10,6 +10,11 @@ class DashboardView(APIView):
         return Response(
             {
                 "project_count": Project.objects.count(),
+                "accepted_count": Project.objects.filter(status="accepted").count(),
+                "pending_count": Project.objects.filter(
+                    status__in=["draft", "quoted"]
+                ).count(),
+                "done_count": Project.objects.filter(status="done").count(),
                 "recent_projects": ProjectSerializer(
                     Project.objects.order_by("-created_at")[:5], many=True
                 ).data,

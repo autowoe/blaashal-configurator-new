@@ -24,5 +24,5 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include("organizations.urls")),
     path("api/", include("projects.urls")),
-    path("api/dashboard", DashboardView.as_view()),
+    path("api/dashboard/", DashboardView.as_view()),
 ]

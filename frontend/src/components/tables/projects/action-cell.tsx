@@ -15,7 +15,7 @@ import { useNavigate } from "react-router"
 
 export const ActionCell = ({ row }: { row: Row<Project> }) => {
     const navigate = useNavigate()
-    const payment = row.original
+    const project = row.original
 
     return (
         <DropdownMenu>
@@ -29,13 +29,13 @@ export const ActionCell = ({ row }: { row: Row<Project> }) => {
                 <DropdownMenuGroup>
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                     <DropdownMenuItem
-                        onClick={() => navigate(`/projects/${row.original.id}`)}
+                        onClick={() => navigate(`/projects/${project.id}`)}
                     >
                         <RiInfoCardFill />
                         Details
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                        onClick={() => navigator.clipboard.writeText(payment.id)}
+                        onClick={() => navigator.clipboard.writeText(project.id)}
                     >
                         <RiFileCopy2Fill />
                         Kopieër ID

@@ -14,6 +14,8 @@ import { Error } from "@/pages/Error";
 import { ProjectDetailLoader } from "@/loaders/project-detail-loader";
 import type { Project } from "@/lib/types/project";
 import { ProjectDetail } from "@/pages/ProjectDetail";
+import { Dashboard } from "@/pages/Dashboard";
+import { DashboardLoader } from "@/loaders/dashboard-loader";
 
 const router = createBrowserRouter([
   {
@@ -21,9 +23,16 @@ const router = createBrowserRouter([
     path: "/",
     element: <AppLayout />,
     errorElement: <Error />,
-    handle: { breadcrumb: "Dashboard" },
     loader: RootLoader,
     children: [
+      {
+        id: "dashboard",
+        path: "/dashboard",
+        handle: { breadcrumb: "Dashboard" },
+        index: true,
+        loader: DashboardLoader,
+        element: <Dashboard />
+      },
       {
         id: "projects_parent",
         path: "/projects",
@@ -31,6 +40,7 @@ const router = createBrowserRouter([
         children: [
           {
             index: true,
+            id: "project_list",
             loader: ProjectListLoader,
             element: <ProjectList />,
           },

@@ -9,9 +9,10 @@ import {
     Command,
 } from "@/components/ui/command"
 import { RiSearchLine } from "@remixicon/react"
-import { Button } from "./ui/button"
+import { Button } from "@/components/ui/button"
 import type { PaginatedProjects, Project } from "@/lib/types/project"
-import { Badge } from "./ui/badge"
+import { Badge } from "@/components/ui/badge"
+import { statusConfig } from "@/components/tables/projects/status-config"
 
 export function ProjectCommand() {
     const [open, setOpen] = useState(false)
@@ -48,7 +49,6 @@ export function ProjectCommand() {
             return
         }
         const data = (await res.json()) as PaginatedProjects
-        console.log(data)
         setSearchResults(data.results)
     }
 
@@ -62,7 +62,7 @@ export function ProjectCommand() {
             <CommandDialog className="w-[80vw]" open={open} onOpenChange={setOpen}>
                 <Command>
                     <CommandInput
-                        placeholder="Zoeken..."
+                        placeholder="Zoeken op projectnaam en organisatie"
                         value={query}
                         onValueChange={handleSearch}
                     />
@@ -72,14 +72,23 @@ export function ProjectCommand() {
                             <CommandItem
                                 key={project.id}
                                 value={project.name}
+                                className="[&_svg:last-child]:hidden"
                                 onSelect={() => {
                                     navigate(`/projects/${project.id}`)
                                     setOpen(false)
                                 }}
                             >
-                                <div className="flex flex-col">
-                                    <span>{project.name}</span>
-                                    <span className="text-xs text-primary">{project.organization.name}</span>
+                                <div className="flex flex-row items-center justify-between w-full">
+                                    <div className="flex flex-col">
+                                        <span>{project.name}</span>
+                                        <span className="text-xs text-primary">{project.organization.name}</span>
+                                    </div>
+                                    <Badge
+                                        className={statusConfig[project.status].className}
+                                        variant={statusConfig[project.status].variant}
+                                    >
+                                        {statusConfig[project.status].label}
+                                    </Badge>
                                 </div>
                             </CommandItem>
                         ))}

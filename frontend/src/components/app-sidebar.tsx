@@ -17,6 +17,10 @@ import { ProjectCommand } from "@/components/project-command"
 const data = {
   navMain: [
     {
+      title: "Dashboard",
+      url: "/dashboard"
+    },
+    {
       title: "Projecten",
       url: "/projects",
     }

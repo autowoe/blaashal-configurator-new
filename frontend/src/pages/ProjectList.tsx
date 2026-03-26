@@ -1,15 +1,42 @@
 import { columns } from "@/components/tables/projects/columns"
 import { DataTable } from "@/components/tables/projects/data-table"
-import { useLoaderData, useSearchParams } from "react-router"
 import type { PaginatedProjects } from "@/lib/types/project"
+import type { PaginationState } from "@tanstack/react-table"
+import { useLoaderData, useSearchParams } from "react-router"
 
 export const ProjectList = () => {
     const data = useLoaderData() as PaginatedProjects
     const [searchParams, setSearchParams] = useSearchParams()
-
     const pageIndex = Number(searchParams.get("page") ?? "1") - 1
     const pageSize = Number(searchParams.get("page_size") ?? "10")
+    const status = searchParams.getAll("status")
+    const search = searchParams.get("search") ?? ""
     const pageCount = Math.ceil(data.count / pageSize)
+
+    const handlePaginationChange = (nextPagination: PaginationState) => {
+        const nextParams = new URLSearchParams(searchParams)
+        nextParams.set("page", String(nextPagination.pageIndex + 1))
+        nextParams.set("page_size", String(nextPagination.pageSize))
+        setSearchParams(nextParams)
+    }
+
+    const handleStatusChange = (nextStatus: string[]) => {
+        const nextParams = new URLSearchParams(searchParams)
+        nextParams.delete("status")
+        nextStatus.forEach((s) => nextParams.append("status", s))
+        nextParams.set("page", "1")
+        setSearchParams(nextParams)
+    }
+
+    const handleSearchChange = (search: string) => {
+        const nextParams = new URLSearchParams(searchParams)
+        nextParams.delete("search")
+        if (search !== "") {
+            nextParams.set("search", search)
+        }
+        nextParams.set("page", "1")
+        setSearchParams(nextParams)
+    }
 
     return (
         <div>
@@ -18,12 +45,11 @@ export const ProjectList = () => {
                 data={data.results}
                 pagination={{ pageIndex, pageSize }}
                 pageCount={pageCount}
-                onPaginationChange={(nextPagination) => {
-                    const nextParams = new URLSearchParams(searchParams)
-                    nextParams.set("page", String(nextPagination.pageIndex + 1))
-                    nextParams.set("page_size", String(nextPagination.pageSize))
-                    setSearchParams(nextParams)
-                }}
+                status={status}
+                onPaginationChange={handlePaginationChange}
+                onStatusChange={handleStatusChange}
+                search={search}
+                onSearchChange={handleSearchChange}
             />
         </div>
     )
