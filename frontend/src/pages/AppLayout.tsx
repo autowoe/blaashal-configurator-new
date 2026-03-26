@@ -23,9 +23,7 @@ export const AppLayout = () => {
                             <BreadcrumbList>
                                 {breadcrumbs.map((match, i) => {
                                     const isLast = i === breadcrumbs.length - 1
-                                    const label = (match.handle as any).breadcrumb
-                                    console.log(label)
-                                    console.log(match.pathname)
+                                    const label = match.label
 
                                     return (
                                         <BreadcrumbItem key={match.id}>

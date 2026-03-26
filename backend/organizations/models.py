@@ -1,7 +1,9 @@
 from django.db import models
 
-# Create your models here.
-class Organization(models.Model):
+from core.models import TimeStampedModel
+
+
+class Organization(TimeStampedModel):
     name = models.CharField(max_length=255)
 
     def __str__(self):

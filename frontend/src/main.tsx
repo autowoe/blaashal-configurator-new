@@ -10,7 +10,10 @@ import { RootLoader } from "@/loaders/root-loader";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AppLayout } from "@/pages/AppLayout";
-import { Error } from "./pages/Error";
+import { Error } from "@/pages/Error";
+import { ProjectDetailLoader } from "@/loaders/project-detail-loader";
+import type { Project } from "@/lib/types/project";
+import { ProjectDetail } from "@/pages/ProjectDetail";
 
 const router = createBrowserRouter([
   {
@@ -18,16 +21,28 @@ const router = createBrowserRouter([
     path: "/",
     element: <AppLayout />,
     errorElement: <Error />,
-    handle: { breadcrumb: "Home" },
+    handle: { breadcrumb: "Dashboard" },
     loader: RootLoader,
     children: [
       {
-        id: "projects",
+        id: "projects_parent",
         path: "/projects",
-        loader: ProjectListLoader,
-        element: <ProjectList />,
         handle: { breadcrumb: "Projecten" },
-      },
+        children: [
+          {
+            index: true,
+            loader: ProjectListLoader,
+            element: <ProjectList />,
+          },
+          {
+            id: "project_detail",
+            path: ":id",
+            loader: ProjectDetailLoader,
+            element: <ProjectDetail />,
+            handle: { breadcrumb: (data: Project) => data.name }
+          }
+        ]
+      }
     ],
   },
 ])

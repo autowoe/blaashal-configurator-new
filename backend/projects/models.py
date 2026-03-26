@@ -1,9 +1,10 @@
 from django.db import models
 
+from core.models import TimeStampedModel
 from organizations.models import Organization
 
-# Create your models here.
-class Project(models.Model):
+
+class Project(TimeStampedModel):
     name = models.CharField(max_length=255)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
 

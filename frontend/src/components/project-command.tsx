@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { useNavigate, useRouteLoaderData } from "react-router"
 import {
     CommandDialog,
@@ -10,22 +10,15 @@ import {
 } from "@/components/ui/command"
 import { RiSearchLine } from "@remixicon/react"
 import { Button } from "./ui/button"
-
-type Project = { id: string; name: string }
+import type { PaginatedProjects, Project } from "@/lib/types/project"
+import { Badge } from "./ui/badge"
 
 export function ProjectCommand() {
     const [open, setOpen] = useState(false)
     const [query, setQuery] = useState("")
-    const rootData = useRouteLoaderData("root") as
-        | { projects: Project[] }
-        | undefined
-
-    const initialResults = useMemo(
-        () => rootData?.projects.slice(0, 10) ?? [],
-        [rootData]
-    )
-
-    const [results, setResults] = useState<Project[]>(initialResults)
+    const [searchResults, setSearchResults] = useState<Project[]>([])
+    const rootData = useRouteLoaderData("root") as { projects: Project[] } | undefined
+    const initialResults = useMemo(() => rootData?.projects.slice(0, 10) ?? [], [rootData])
     const navigate = useNavigate()
 
     useEffect(() => {
@@ -35,50 +28,38 @@ export function ProjectCommand() {
                 setOpen((open) => !open)
             }
         }
-
         document.addEventListener("keydown", down)
         return () => document.removeEventListener("keydown", down)
     }, [])
 
-    useEffect(() => {
-        if (!query) {
-            setResults(initialResults)
-        }
-    }, [query, initialResults])
+    const results = query ? searchResults : initialResults
 
     const handleSearch = async (value: string) => {
         setQuery(value)
-
         if (!value.trim()) {
-            setResults(initialResults)
+            setSearchResults([])
             return
         }
-
         const res = await fetch(
             `http://localhost:8000/api/projects?search=${encodeURIComponent(value)}`
         )
-
         if (!res.ok) {
-            setResults([])
+            setSearchResults([])
             return
         }
-
-        const data = (await res.json()) as Project[]
-        setResults(data.slice(0, 10))
+        const data = (await res.json()) as PaginatedProjects
+        console.log(data)
+        setSearchResults(data.results)
     }
 
     return (
         <>
-            <Button
-                onClick={() => setOpen(true)}
-                className="w-full h-10"
-            >
+            <Button onClick={() => setOpen(true)} className="w-full h-10">
                 <RiSearchLine className="size-4" />
                 Zoek projecten...
                 <kbd className="ml-auto text-xs">⌘K</kbd>
             </Button>
-
-            <CommandDialog open={open} onOpenChange={setOpen}>
+            <CommandDialog className="w-[80vw]" open={open} onOpenChange={setOpen}>
                 <Command>
                     <CommandInput
                         placeholder="Zoeken..."
@@ -96,7 +77,10 @@ export function ProjectCommand() {
                                     setOpen(false)
                                 }}
                             >
-                                {project.name}
+                                <div className="flex flex-col">
+                                    <span>{project.name}</span>
+                                    <span className="text-xs text-primary">{project.organization.name}</span>
+                                </div>
                             </CommandItem>
                         ))}
                     </CommandList>

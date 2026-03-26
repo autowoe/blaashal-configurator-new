@@ -14,9 +14,7 @@ class Command(BaseCommand):
         # create some organizations first
         organizations = []
         for _ in range(5):
-            org, _ = Organization.objects.get_or_create(
-                name=fake.company()
-            )
+            org, _ = Organization.objects.get_or_create(name=fake.company())
             organizations.append(org)
 
         # create projects

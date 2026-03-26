@@ -18,7 +18,6 @@ export const ProjectList = () => {
                 data={data.results}
                 pagination={{ pageIndex, pageSize }}
                 pageCount={pageCount}
-                totalCount={data.count}
                 onPaginationChange={(nextPagination) => {
                     const nextParams = new URLSearchParams(searchParams)
                     nextParams.set("page", String(nextPagination.pageIndex + 1))

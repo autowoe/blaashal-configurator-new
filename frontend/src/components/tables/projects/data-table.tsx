@@ -21,7 +21,9 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import {
     Pagination,
     PaginationContent,
+    PaginationEllipsis,
     PaginationItem,
+    PaginationLink,
     PaginationNext,
     PaginationPrevious,
 } from "@/components/ui/pagination"
@@ -34,6 +36,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import { useNavigate } from "react-router"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -46,8 +49,8 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({
     columns,
     data,
-    pagination,
     pageCount,
+    pagination,
     onPaginationChange,
 }: DataTableProps<TData, TValue>) {
     const table = useReactTable({
@@ -59,8 +62,8 @@ export function DataTable<TData, TValue>({
             pagination,
         },
         onPaginationChange: (updater) => {
-            const next =
-                typeof updater === "function" ? updater(pagination) : updater
+            // TanStack passes either a new state object or an updater function
+            const next = typeof updater === "function" ? updater(pagination) : updater
             onPaginationChange(next)
         },
         getCoreRowModel: getCoreRowModel(),
@@ -121,7 +124,12 @@ export function DataTable<TData, TValue>({
             <div className="flex items-center justify-between gap-4">
                 <Field orientation="horizontal" className="w-fit">
                     <FieldLabel htmlFor="select-rows-per-page">Rijen</FieldLabel>
-                    <Select defaultValue="25">
+                    <Select
+                        value={String(pagination.pageSize)}
+                        onValueChange={(value) =>
+                            onPaginationChange({ pageIndex: 0, pageSize: Number(value) })
+                        }
+                    >
                         <SelectTrigger className="w-20" id="select-rows-per-page">
                             <SelectValue />
                         </SelectTrigger>
@@ -141,12 +149,62 @@ export function DataTable<TData, TValue>({
                             <PaginationPrevious
                                 href="#"
                                 text="Vorige"
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    table.previousPage()
+                                }}
+                                aria-disabled={!table.getCanPreviousPage()}
                             />
                         </PaginationItem>
+
+                        {(() => {
+                            const current = pagination.pageIndex
+                            const total = pageCount
+                            const pages: (number | "ellipsis")[] = []
+
+                            if (total <= 7) {
+                                for (let i = 0; i < total; i++) pages.push(i)
+                            } else {
+                                pages.push(0)
+                                if (current > 3) pages.push("ellipsis")
+                                for (let i = Math.max(1, current - 1); i <= Math.min(total - 2, current + 1); i++) {
+                                    pages.push(i)
+                                }
+                                if (current < total - 4) pages.push("ellipsis")
+                                pages.push(total - 1)
+                            }
+
+                            return pages.map((page, i) =>
+                                page === "ellipsis" ? (
+                                    <PaginationItem key={`ellipsis-${i}`}>
+                                        <PaginationEllipsis />
+                                    </PaginationItem>
+                                ) : (
+                                    <PaginationItem key={page}>
+                                        <PaginationLink
+                                            href="#"
+                                            isActive={page === current}
+                                            onClick={(e) => {
+                                                e.preventDefault()
+                                                table.setPageIndex(page)
+                                            }}
+                                        >
+                                            {page + 1}
+                                        </PaginationLink>
+                                    </PaginationItem>
+                                )
+                            )
+                        })()}
+
                         <PaginationItem>
                             <PaginationNext
                                 href="#"
                                 text="Volgende"
+                                onClick={(e) => {
+                                    e.preventDefault()
+                                    table.nextPage()
+                                }}
+                                aria-disabled={!table.getCanNextPage()}
                             />
                         </PaginationItem>
                     </PaginationContent>
