@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSearchParams } from "react-router";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 import { RiGalleryFill } from "@remixicon/react";
 import { LoginForm } from "@/components/forms/login-form";
