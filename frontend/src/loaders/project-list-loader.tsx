@@ -1,17 +1,17 @@
-import type { PaginatedProjects } from "@/lib/types/project"
+import { getProjects } from "@/lib/api/services/projects.service";
 
 export const ProjectListLoader = async ({ request }: { request: Request }) => {
-    const url = new URL(request.url)
-    const page = url.searchParams.get("page") ?? "1"
-    const pageSize = url.searchParams.get("page_size") ?? "10"
-    const statuses = url.searchParams.getAll("status")
-    const search = url.searchParams.get("search") ?? ""
+    const url = new URL(request.url);
 
-    const params = new URLSearchParams({ page, page_size: pageSize })
-    if (search) params.set("search", search)
-    statuses.forEach((s) => params.append("status", s))
+    const page = Number(url.searchParams.get("page") ?? "1");
+    const pageSize = Number(url.searchParams.get("page_size") ?? "10");
+    const statuses = url.searchParams.getAll("status");
+    const search = url.searchParams.get("search") ?? "";
 
-    const res = await fetch(`http://localhost:8000/api/projects?${params}`)
-    if (!res.ok) throw new Response("Failed to load projects", { status: res.status })
-    return res.json() as Promise<PaginatedProjects>
-}
+    return getProjects({
+        page,
+        pageSize,
+        search: search || undefined,
+        status: statuses.length ? statuses : undefined,
+    });
+};

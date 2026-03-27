@@ -4,22 +4,15 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Separator } from "@base-ui/react"
 import { useBreadcrumbs } from "@/hooks/use-breadcrumb"
-import { ToastContainer } from "react-toastify"
-import { useTheme } from "@/components/theme-provider"
 
 export const AppLayout = () => {
     const breadcrumbs = useBreadcrumbs()
-    const { theme } = useTheme();
 
     return (
         <SidebarProvider>
             <div className="flex h-screen w-full">
                 <AppSidebar />
                 <SidebarInset>
-                    <ToastContainer
-                        position="top-right"
-                        theme={theme === "dark" ? "dark" : "light"}
-                    />
                     <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator

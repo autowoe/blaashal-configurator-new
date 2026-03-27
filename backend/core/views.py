@@ -1,24 +1,28 @@
 from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.csrf import ensure_csrf_cookie, csrf_protect
 
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework import status
 
+from core.serializers import UserSerializer
 from projects.models import Project
 from projects.serializers import ProjectSerializer
 
 
 @ensure_csrf_cookie
 @api_view(["GET"])
+@permission_classes([AllowAny])
 def csrf_view(request):
     return Response({"detail": "CSRF cookie set"})
 
 
 @csrf_protect
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def login_view(request):
     email = request.data.get("email")
     password = request.data.get("password")
@@ -38,6 +42,14 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return Response({"detail": "Logged out"})
+
+
+class MeView(APIView):
+    def get(self, request):
+        print("IS AUTHENTICATED:", request.user.is_authenticated)
+        print("USER:", request.user)
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
 
 
 class DashboardView(APIView):

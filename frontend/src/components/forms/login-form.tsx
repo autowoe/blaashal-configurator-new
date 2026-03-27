@@ -83,8 +83,10 @@ export function LoginForm({
           <Input
             id="email"
             type="email"
+            autoFocus
             placeholder="m@example.com"
             autoComplete="email"
+            tabIndex={1}
             {...register("email")}
           />
           {errors.email && <FieldError>{errors.email.message}</FieldError>}
@@ -104,6 +106,7 @@ export function LoginForm({
             id="password"
             type="password"
             autoComplete="current-password"
+            tabIndex={2}
             {...register("password")}
           />
           {errors.password && <FieldError>{errors.password.message}</FieldError>}

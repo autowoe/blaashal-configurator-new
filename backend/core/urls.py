@@ -18,17 +18,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from core.views import DashboardView, login_view, logout_view, csrf_view
+from core.views import DashboardView, MeView, login_view, logout_view, csrf_view
 from configurations.urls import projects_router
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    # App urls
     path("api/", include("organizations.urls")),
     path("api/", include("projects.urls")),
     path("api/", include("components.urls")),
     path("api/", include(projects_router.urls)),
+    # Core urls
     path("api/dashboard/", DashboardView.as_view()),
     path("api/auth/login/", login_view),
     path("api/auth/logout/", logout_view),
     path("api/auth/csrf/", csrf_view),
+    path("api/auth/me/", MeView.as_view()),
 ]

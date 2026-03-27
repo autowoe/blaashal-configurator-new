@@ -16,17 +16,21 @@ import { ProjectDetail } from "@/pages/ProjectDetail";
 import { Dashboard } from "@/pages/Dashboard";
 import { Login } from "@/pages/Login";
 import { DashboardLoader } from "@/loaders/dashboard-loader";
-import type { ComponentPrice, ConfigurationType, ExistingConfiguration } from "./lib/types/configuration";
+import { LoginLoader } from "@/loaders/login-loader";
+import type { ComponentPrice, ConfigurationType, ExistingConfiguration } from "@/lib/types/configuration";
+import { ThemedToastContainer } from "@/components/themed-toast-container";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
     errorElement: <Error />,
+    loader: LoginLoader
   },
   {
     id: "root",
     loader: RootLoader,
+    shouldRevalidate: () => true,
     element: <AppLayout />,
     errorElement: <Error />,
     children: [
@@ -73,6 +77,7 @@ const router = createBrowserRouter([
 createRoot(document.getElementById("root")!).render(
   <TooltipProvider>
     <ThemeProvider>
+      <ThemedToastContainer />
       <RouterProvider router={router} />
     </ThemeProvider>
   </TooltipProvider>
