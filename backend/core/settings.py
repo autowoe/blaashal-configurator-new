@@ -67,6 +67,12 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
 ]
 
+STATIC_URL = "/static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
 ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
