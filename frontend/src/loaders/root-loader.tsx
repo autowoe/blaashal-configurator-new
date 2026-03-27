@@ -1,12 +1,17 @@
-export const RootLoader = async () => {
-    const res = await fetch(
-        "http://localhost:8000/api/projects?page=1&page_size=10&ordering=name"
-    )
-    if (!res.ok) {
-        throw new Response("Failed to fetch projects", { status: res.status })
-    }
-    const data = await res.json()
+import { getProjects } from "@/lib/api/services/projects.service";
+
+export interface RootLoaderData {
+    projects: Awaited<ReturnType<typeof getProjects>>["results"];
+}
+
+export async function RootLoader(): Promise<RootLoaderData> {
+    const data = await getProjects({
+        page: 1,
+        pageSize: 10,
+        ordering: "name",
+    });
+
     return {
-        projects: data.results
-    }
+        projects: data.results,
+    };
 }

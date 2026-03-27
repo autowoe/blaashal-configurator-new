@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { statusConfig } from "@/components/tables/projects/status-config"
 import { Badge } from "@/components/ui/badge"
+import { toast } from "react-toastify"
 
 const configurationSchema = z.object({
     configuration_type: z.number({ error: "Selecteer een type" }),
@@ -71,6 +72,12 @@ export const ProjectDetail = () => {
                 configuration_type: values.configuration_type,
                 data: { selected_components: values.selected_components, price_snapshot: snap },
             }),
+        }).then((response) => {
+            if (response.ok) {
+                toast('Configuratie succesvol opgeslagen', { type: "success" })
+            } else {
+                toast('Opslaan van de configuratie is mislukt', { type: "error" })
+            }
         })
     }
 
@@ -203,9 +210,6 @@ export const ProjectDetail = () => {
                                                                 <div>
                                                                     <p className="text-sm font-medium text-foreground">
                                                                         {c.component.name}
-                                                                    </p>
-                                                                    <p className="text-xs text-muted-foreground tabular-nums">
-                                                                        Inkoop € {parseFloat(c.inkoop).toLocaleString("nl-NL")}
                                                                     </p>
                                                                 </div>
                                                             </div>

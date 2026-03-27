@@ -18,7 +18,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from core.views import DashboardView
+from core.views import DashboardView, login_view, logout_view, csrf_view
 from configurations.urls import projects_router
 
 urlpatterns = [
@@ -28,4 +28,7 @@ urlpatterns = [
     path("api/", include("components.urls")),
     path("api/", include(projects_router.urls)),
     path("api/dashboard/", DashboardView.as_view()),
+    path("api/auth/login/", login_view),
+    path("api/auth/logout/", logout_view),
+    path("api/auth/csrf/", csrf_view),
 ]

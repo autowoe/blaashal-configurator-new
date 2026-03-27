@@ -1,8 +1,7 @@
 import "@/index.css"
 
 import { createRoot } from "react-dom/client"
-import { createBrowserRouter } from "react-router";
-import { RouterProvider } from "react-router/dom";
+import { createBrowserRouter, RouterProvider } from "react-router";
 
 import { ProjectList } from "@/pages/ProjectList";
 import { ProjectListLoader } from "@/loaders/project-list-loader";
@@ -15,23 +14,28 @@ import { ProjectDetailLoader } from "@/loaders/project-detail-loader";
 import type { Project } from "@/lib/types/project";
 import { ProjectDetail } from "@/pages/ProjectDetail";
 import { Dashboard } from "@/pages/Dashboard";
+import { Login } from "@/pages/Login";
 import { DashboardLoader } from "@/loaders/dashboard-loader";
 import type { ComponentPrice, ConfigurationType, ExistingConfiguration } from "./lib/types/configuration";
 
 const router = createBrowserRouter([
   {
-    id: "root",
     path: "/",
+    element: <Login />,
+    errorElement: <Error />,
+  },
+  {
+    id: "root",
+    loader: RootLoader,
     element: <AppLayout />,
     errorElement: <Error />,
-    loader: RootLoader,
     children: [
       {
         id: "dashboard",
         path: "/dashboard",
         handle: { breadcrumb: "Dashboard" },
         loader: DashboardLoader,
-        element: <Dashboard />
+        element: <Dashboard />,
       },
       {
         id: "projects_parent",
@@ -57,13 +61,14 @@ const router = createBrowserRouter([
                 existingConfig: ExistingConfiguration | null
                 activeTypeId: string | null
               }) => data.project.name,
-            }
-          }
-        ]
-      }
+            },
+          },
+        ],
+      },
     ],
   },
 ])
+
 
 createRoot(document.getElementById("root")!).render(
   <TooltipProvider>
