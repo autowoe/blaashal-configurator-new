@@ -40,9 +40,12 @@ INSTALLED_APPS = [
     # Third-party apps
     "rest_framework",
     "corsheaders",
+    "django_filters",
     # Custom apps
     "organizations",
     "projects",
+    "components",
+    "configurations",
 ]
 
 MIDDLEWARE = [

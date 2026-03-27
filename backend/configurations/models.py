@@ -8,8 +8,12 @@ class Configuration(TimeStampedModel):
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="price_configurations"
     )
+    configuration_type = models.ForeignKey(
+        "components.ConfigurationType",
+        on_delete=models.PROTECT,
+    )
     is_active = models.BooleanField(default=True)
-    configuration = models.JSONField()
+    data = models.JSONField()
 
     @property
     def price(self):

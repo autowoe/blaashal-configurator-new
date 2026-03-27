@@ -16,6 +16,7 @@ import type { Project } from "@/lib/types/project";
 import { ProjectDetail } from "@/pages/ProjectDetail";
 import { Dashboard } from "@/pages/Dashboard";
 import { DashboardLoader } from "@/loaders/dashboard-loader";
+import type { ComponentPrice, ConfigurationType, ExistingConfiguration } from "./lib/types/configuration";
 
 const router = createBrowserRouter([
   {
@@ -29,7 +30,6 @@ const router = createBrowserRouter([
         id: "dashboard",
         path: "/dashboard",
         handle: { breadcrumb: "Dashboard" },
-        index: true,
         loader: DashboardLoader,
         element: <Dashboard />
       },
@@ -49,7 +49,15 @@ const router = createBrowserRouter([
             path: ":id",
             loader: ProjectDetailLoader,
             element: <ProjectDetail />,
-            handle: { breadcrumb: (data: Project) => data.name }
+            handle: {
+              breadcrumb: (data: {
+                project: Project
+                types: ConfigurationType[]
+                components: ComponentPrice[]
+                existingConfig: ExistingConfiguration | null
+                activeTypeId: string | null
+              }) => data.project.name,
+            }
           }
         ]
       }
