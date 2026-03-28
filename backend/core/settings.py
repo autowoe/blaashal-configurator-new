@@ -58,10 +58,12 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "https://blaashal-configurator.lexwuestenenk.nl",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
+    "https://blaashal-configurator.lexwuestenenk.nl",
 ]
 
 STATIC_URL = "/static/"
