@@ -77,7 +77,7 @@ export function OrganizationCombobox({
                 </Button>
             </PopoverTrigger>
 
-            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+            <PopoverContent className="w-full p-0">
                 <Command>
                     <CommandInput
                         placeholder="Zoek organisatie..."
