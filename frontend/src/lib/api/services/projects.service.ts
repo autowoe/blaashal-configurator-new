@@ -1,6 +1,6 @@
 import type { PaginatedProjects, Project } from "@/lib/types/project";
 import type { ExistingConfiguration } from "@/lib/types/configuration";
-import { apiFetchJson } from "@/lib/api/client";
+import { apiFetch, apiFetchJson } from "@/lib/api/client";
 
 export interface GetProjectsParams {
     page?: number;
@@ -33,9 +33,6 @@ export async function getProjects(
     );
 }
 
-export async function getProject(projectId: string | number): Promise<Project> {
-    return apiFetchJson<Project>(`/projects/${projectId}`);
-}
 
 export interface GetProjectConfigurationsParams {
     isActive?: boolean;
@@ -58,9 +55,17 @@ export async function getProjectConfigurations(
     );
 }
 
+export async function getProject(projectId: string | number): Promise<Project> {
+    return apiFetchJson<Project>(`/projects/${projectId}`);
+}
+
 export async function createProject(payload: CreateProjectPayload): Promise<Project> {
     return apiFetchJson<Project>("/projects/", {
         method: "POST",
         body: JSON.stringify(payload),
     })
+}
+
+export async function deleteProject(projectId: string | number): Promise<void> {
+    await apiFetchJson<void>(`/projects/${projectId}`, { method: "DELETE" });
 }
