@@ -1,6 +1,6 @@
 import type { PaginatedProjects, Project } from "@/lib/types/project";
 import type { ExistingConfiguration } from "@/lib/types/configuration";
-import { apiFetch, apiFetchJson } from "@/lib/api/client";
+import { apiFetchJson } from "@/lib/api/client";
 
 export interface GetProjectsParams {
     page?: number;
