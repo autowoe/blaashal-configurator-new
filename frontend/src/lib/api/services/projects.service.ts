@@ -10,6 +10,11 @@ export interface GetProjectsParams {
     status?: string[];
 }
 
+export interface CreateProjectPayload {
+    name: string
+    organization: number
+}
+
 export async function getProjects(
     params: GetProjectsParams = {}
 ): Promise<PaginatedProjects> {
@@ -51,4 +56,11 @@ export async function getProjectConfigurations(
     return apiFetchJson<ExistingConfiguration[]>(
         `/projects/${projectId}/configurations/${query ? `?${query}` : ""}`
     );
+}
+
+export async function createProject(payload: CreateProjectPayload): Promise<Project> {
+    return apiFetchJson<Project>("/projects/", {
+        method: "POST",
+        body: JSON.stringify(payload),
+    })
 }

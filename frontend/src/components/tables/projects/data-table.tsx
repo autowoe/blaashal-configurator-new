@@ -40,6 +40,8 @@ import {
 import { statusConfig } from "@/components/tables/projects/status-config"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { CreateProjectDialog } from "@/components/create-project-dialog"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -82,34 +84,36 @@ export function DataTable<TData, TValue>({
 
     return (
         <>
-            <div className="flex flex-row gap-2 mb-2">
-                <Input
-                    className="w-32"
-                    placeholder="Zoeken..."
-                    value={search}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                />
-                <div className="flex gap-2 items-center">
-                    {Object.entries(statusConfig).map(([value, config]) => {
-                        const isActive = status.includes(value)
-                        return (
-                            <Badge
-                                key={value}
-                                variant="outline"
-                                className={`cursor-pointer transition-opacity ${config.className} ${isActive ? "opacity-100" : "opacity-40"}`}
-                                onClick={() => {
-                                    const next = isActive
-                                        ? status.filter((s) => s !== value)
-                                        : [...status, value]
-                                    onStatusChange(next)
-                                }}
-                            >
-                                {config.label}
-                            </Badge>
-                        )
-                    })}
+            <div className="flex flex-row justify-between gap-2 mb-2">
+                <div className="flex flex-row">
+                    <Input
+                        className="w-32"
+                        placeholder="Zoeken..."
+                        value={search}
+                        onChange={(e) => onSearchChange(e.target.value)}
+                    />
+                    <div className="flex gap-2 items-center">
+                        {Object.entries(statusConfig).map(([value, config]) => {
+                            const isActive = status.includes(value)
+                            return (
+                                <Badge
+                                    key={value}
+                                    variant="outline"
+                                    className={`cursor-pointer transition-opacity ${config.className} ${isActive ? "opacity-100" : "opacity-40"}`}
+                                    onClick={() => {
+                                        const next = isActive
+                                            ? status.filter((s) => s !== value)
+                                            : [...status, value]
+                                        onStatusChange(next)
+                                    }}
+                                >
+                                    {config.label}
+                                </Badge>
+                            )
+                        })}
+                    </div>
                 </div>
-
+                <CreateProjectDialog />
             </div>
             <div className="overflow-hidden rounded-md border mb-5">
                 <Table>

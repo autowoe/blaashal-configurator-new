@@ -3,7 +3,7 @@ import type { PaginatedResponse } from "@/lib/types/generic"
 
 
 export type Project = {
-    id: string
+    id: number
     name: string
     status: "draft" | "quoted" | "accepted" | "done" | "denied"
     organization: Organization

@@ -3,7 +3,12 @@ import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import type { Project } from "@/lib/types/project"
-import type { ConfigurationType, ComponentPrice, ExistingConfiguration } from "@/lib/types/configuration"
+import type {
+    ConfigurationType,
+    ComponentPrice,
+    ExistingConfiguration,
+} from "@/lib/types/configuration"
+import { createProjectConfiguration } from "@/lib/api/services/configuration.service"
 import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -51,34 +56,39 @@ export const ProjectDetail = () => {
         .reduce((sum, c) => sum + parseFloat(c.verkoop), 0)
 
     const onSubmit = async (values: ConfigurationFormValues) => {
-        const snap = components
-            .filter((c) => values.selected_components.includes(c.component.id))
-            .reduce(
-                (acc, c) => ({
-                    ...acc,
-                    [c.component.id]: {
+        try {
+            const snap = components
+                .filter((c) => values.selected_components.includes(c.component.id))
+                .reduce<
+                    Record<
+                        number,
+                        {
+                            name: string
+                            inkoop: string
+                            verkoop: string
+                        }
+                    >
+                >((acc, c) => {
+                    acc[c.component.id] = {
                         name: c.component.name,
                         inkoop: c.inkoop,
                         verkoop: c.verkoop,
-                    },
-                }),
-                {}
-            )
+                    }
+                    return acc
+                }, {})
 
-        await fetch(`http://localhost:8000/api/projects/${project.id}/configurations/`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
+            await createProjectConfiguration(project.id, {
                 configuration_type: values.configuration_type,
-                data: { selected_components: values.selected_components, price_snapshot: snap },
-            }),
-        }).then((response) => {
-            if (response.ok) {
-                toast('Configuratie succesvol opgeslagen', { type: "success" })
-            } else {
-                toast('Opslaan van de configuratie is mislukt', { type: "error" })
-            }
-        })
+                data: {
+                    selected_components: values.selected_components,
+                    price_snapshot: snap,
+                },
+            })
+
+            toast("Configuratie succesvol opgeslagen", { type: "success" })
+        } catch {
+            toast("Opslaan van de configuratie is mislukt", { type: "error" })
+        }
     }
 
     return (
@@ -123,7 +133,7 @@ export const ProjectDetail = () => {
                         </div>
 
                         <div className="px-5 py-4 bg-primary text-primary-foreground flex items-center justify-between">
-                            <span className="text-sm font-medium opacity-90">Totaal verkoop</span>
+                            <span className="text-sm font-medium opacity-90">Totaal</span>
                             <span className="text-lg font-semibold tabular-nums">
                                 € {snapshotTotal.toLocaleString("nl-NL")}
                             </span>
@@ -239,7 +249,7 @@ export const ProjectDetail = () => {
 
                             {selectedComponents.length > 0 && (
                                 <div className="px-5 py-4 bg-primary text-primary-foreground flex items-center justify-between">
-                                    <span className="text-sm font-medium opacity-90">Totaal verkoop</span>
+                                    <span className="text-sm font-medium opacity-90">Totaal</span>
                                     <span className="text-lg font-semibold tabular-nums">
                                         € {total.toLocaleString("nl-NL")}
                                     </span>

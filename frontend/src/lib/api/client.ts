@@ -22,6 +22,11 @@ export async function apiFetch(
     const headers = new Headers(options.headers ?? {});
     headers.set("Accept", "application/json");
 
+    const hasBody = options.body != null;
+    if (hasBody && !headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
+    }
+
     const isUnsafeMethod = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
     if (isUnsafeMethod) {
         const csrfToken = getCookie("csrftoken");
