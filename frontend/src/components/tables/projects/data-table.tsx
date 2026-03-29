@@ -40,7 +40,6 @@ import {
 import { statusConfig } from "@/components/tables/projects/status-config"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
 import { CreateProjectDialog } from "@/components/create-project-dialog"
 
 interface DataTableProps<TData, TValue> {

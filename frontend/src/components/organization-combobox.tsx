@@ -65,7 +65,7 @@ export function OrganizationCombobox({
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
+            <PopoverTrigger>
                 <Button
                     type="button"
                     variant="outline"

@@ -35,7 +35,7 @@ export const ActionCell = ({ row }: { row: Row<Project> }) => {
                         Details
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                        onClick={() => navigator.clipboard.writeText(project.id)}
+                        onClick={() => navigator.clipboard.writeText(project.id.toString())}
                     >
                         <RiFileCopy2Fill />
                         Kopieër ID

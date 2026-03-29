@@ -12,7 +12,6 @@ import { createOrganization, getOrganizations } from "@/lib/api/services/organiz
 import type { Project } from "@/lib/types/project"
 import type { Organization } from "@/lib/types/organization"
 import { OrganizationCombobox } from "../organization-combobox"
-import { useRevalidator } from "react-router"
 
 const createProjectSchema = z.object({
     name: z.string().min(1, "Naam is verplicht"),
@@ -80,21 +79,9 @@ export function CreateProjectForm({
 
     const onSubmit = async (values: CreateProjectFormValues) => {
         try {
-            let organizationId: number
-
-            if (typeof values.organization === "number") {
-                organizationId = values.organization
-            } else {
-                const organization = await createOrganization({
-                    name: values.organization.create,
-                })
-
-                organizationId = organization.id
-            }
-
             const project = await createProject({
                 name: values.name,
-                organization: organizationId,
+                organization: values.organization,
             })
 
             if (onSuccess) {
@@ -110,7 +97,7 @@ export function CreateProjectForm({
                     const first = Object.values(data).flat()[0]
                     if (first) message = first
                 } catch {
-                    // ignore json parse failure
+                    //
                 }
                 setError("root", { message })
                 return

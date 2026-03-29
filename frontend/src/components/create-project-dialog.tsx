@@ -16,7 +16,7 @@ export function CreateProjectDialog() {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
+            <DialogTrigger>
                 <Button>Nieuw project</Button>
             </DialogTrigger>
             <DialogContent>
