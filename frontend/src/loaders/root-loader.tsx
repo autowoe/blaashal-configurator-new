@@ -9,7 +9,6 @@ export interface RootLoaderData {
 
 export const RootLoader = async ({ request }: LoaderFunctionArgs) => {
     const me = await getMe()
-    console.log(me)
     if (!me) {
         const url = new URL(request.url)
         if (url.pathname !== "/") {
