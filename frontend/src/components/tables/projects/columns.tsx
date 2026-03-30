@@ -24,6 +24,6 @@ export const columns: ColumnDef<Project>[] = [
         id: "actions",
         header: "Acties",
         size: 2,
-        cell: ({ row }) => <ActionCell row={row} />,
+        cell: ({ row, table }) => <ActionCell row={row} table={table} />,
     }
 ]

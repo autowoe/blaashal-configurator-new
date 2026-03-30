@@ -24,7 +24,7 @@ export interface PriceSnapshotItem {
 
 export interface ExistingConfiguration {
     id: number
-    configuration_type: number
+    configuration_type: ConfigurationType
     data: {
         selected_components: number[]
         price_snapshot: Record<string, PriceSnapshotItem>

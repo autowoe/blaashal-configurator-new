@@ -133,7 +133,7 @@ export function UpdatesSheet() {
                     <div className="space-y-6">
                         {Object.entries(groupedUpdates).map(([date, items]) => (
                             <section key={date} className="space-y-3">
-                                <div className="sticky top-0 z-10 py-1 backdrop-blur">
+                                <div className="sticky top-0 z-10 py-1 backdrop-blur-lg">
                                     <p className="text-xs font-medium uppercase tracking-wider">
                                         {formatDate(date)}
                                     </p>

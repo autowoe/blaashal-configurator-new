@@ -27,7 +27,7 @@ export const ProjectDetailLoader = async ({ params, request }: LoaderFunctionArg
 
     const typeToFetch =
         configurationType ??
-        (existingConfig ? String(existingConfig.configuration_type) : null);
+        (existingConfig ? String(existingConfig.configuration_type.id) : null);
 
     const components = typeToFetch
         ? await getConfigurationComponents({ configurationType: typeToFetch })

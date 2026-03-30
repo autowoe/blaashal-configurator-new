@@ -41,6 +41,9 @@ import { statusConfig } from "@/components/tables/projects/status-config"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { CreateProjectDialog } from "@/components/create-project-dialog"
+import type { Project } from "@/lib/types/project"
+import { useState } from "react"
+import { EditProjectDialog } from "@/components/edit-project-dialog"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -65,6 +68,7 @@ export function DataTable<TData, TValue>({
     search,
     onSearchChange,
 }: DataTableProps<TData, TValue>) {
+    const [editingProject, setEditingProject] = useState<Project | null>(null)
     const table = useReactTable({
         data,
         columns,
@@ -79,6 +83,9 @@ export function DataTable<TData, TValue>({
             onPaginationChange(next)
         },
         getCoreRowModel: getCoreRowModel(),
+        meta: {
+            onEdit: (project: Project) => setEditingProject(project),
+        },
     })
 
     return (
@@ -253,6 +260,13 @@ export function DataTable<TData, TValue>({
                     </PaginationContent>
                 </Pagination>
             </div>
+            {editingProject && (
+                <EditProjectDialog
+                    project={editingProject}
+                    open={!!editingProject}
+                    onOpenChange={(open) => { if (!open) setEditingProject(null) }}
+                />
+            )}
         </>
     )
 }

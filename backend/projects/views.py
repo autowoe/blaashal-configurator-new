@@ -3,7 +3,11 @@ from rest_framework import viewsets
 
 from projects.models import Project
 from projects.filters import ProjectFilter
-from projects.serializers import ProjectSerializer, ProjectCreateSerializer
+from projects.serializers import (
+    ProjectSerializer,
+    ProjectCreateSerializer,
+    ProjectUpdateSerializer,
+)
 from projects.pagination import ProjectPagination
 
 
@@ -15,8 +19,11 @@ class ProjectViewSet(viewsets.ModelViewSet):
     pagination_class = ProjectPagination
 
     def get_serializer_class(self):
+        print(self.action)
         if self.action == "create":
             return ProjectCreateSerializer
+        if self.action == "partial_update":
+            return ProjectUpdateSerializer
 
         return ProjectSerializer
 

@@ -10,9 +10,30 @@ export interface AppUpdate {
 
 export const updates: AppUpdate[] = [
     {
+        id: "2026-03-30-project-edit",
+        date: "2026-03-30",
+        title: "Projecten bewerken",
+        description: "Projecten kunnen nu bewerkt worden vanuit de projecttabel. Naam, organisatie en status zijn aanpasbaar.",
+        type: "feature",
+    },
+    {
+        id: "2026-03-30-configuration-type-label",
+        date: "2026-03-30",
+        title: "Configuratietype zichtbaar bij vastgelegde prijzen",
+        description: "Het type installatie wordt nu getoond bij vastgelegde configuraties.",
+        type: "improvement",
+    },
+    {
+        id: "2026-03-30-configuration-dirty",
+        date: "2026-03-30",
+        title: "Opslaan knop verborgen zonder wijzigingen",
+        description: "De opslaan en reset knoppen in de configuratie zijn nu alleen zichtbaar wanneer er onopgeslagen wijzigingen zijn.",
+        type: "improvement",
+    },
+    {
         id: "2026-03-29-project-delete",
         date: "2026-03-29",
-        title: "Project verwijderen toegevoegd",
+        title: "Projecten verwijderen",
         description: "Projecten kunnen nu verwijderd worden vanuit de projecttabel.",
         type: "feature",
     },

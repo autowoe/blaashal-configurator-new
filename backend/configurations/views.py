@@ -3,7 +3,10 @@ from rest_framework import viewsets, mixins
 from django_filters.rest_framework import DjangoFilterBackend
 
 from configurations.models import Configuration
-from configurations.serializers import ConfigurationSerializer
+from configurations.serializers import (
+    ConfigurationSerializer,
+    ConfigurationCreateSerializer,
+)
 
 
 class ConfigurationViewSet(
@@ -12,9 +15,16 @@ class ConfigurationViewSet(
     mixins.ListModelMixin,
     viewsets.GenericViewSet,
 ):
-    serializer_class = ConfigurationSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["is_active"]
+
+    def get_serializer_class(self):
+        if self.action == "create":
+            return ConfigurationCreateSerializer
+        if self.action == "partial_update":
+            return ConfigurationCreateSerializer
+
+        return ConfigurationSerializer
 
     def get_queryset(self):
         return Configuration.objects.filter(

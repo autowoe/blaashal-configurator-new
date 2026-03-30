@@ -11,18 +11,19 @@ import { deleteProject } from "@/lib/api/services/projects.service"
 import type { Project } from "@/lib/types/project"
 import {
     RiDeleteBin2Fill,
-    RiFileCopy2Fill,
+    RiEditFill,
     RiInfoCardFill,
     RiMenuLine,
 } from "@remixicon/react"
-import type { Row } from "@tanstack/react-table"
+import type { Row, Table } from "@tanstack/react-table"
 import { useNavigate, useRevalidator } from "react-router"
 import { toast } from "react-toastify"
 
-export const ActionCell = ({ row }: { row: Row<Project> }) => {
+export const ActionCell = ({ row, table }: { row: Row<Project>; table: Table<Project> }) => {
     const navigate = useNavigate()
     const revalidator = useRevalidator()
     const project = row.original
+    const { onEdit } = table.options.meta as { onEdit: (project: Project) => void }
 
     const handleDeleteProject = async () => {
         try {
@@ -48,23 +49,16 @@ export const ActionCell = ({ row }: { row: Row<Project> }) => {
             <DropdownMenuContent align="end">
                 <DropdownMenuGroup>
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
                     <DropdownMenuItem
                         onClick={() => navigate(`/projects/${project.id}`)}
                     >
                         <RiInfoCardFill />
                         Details
                     </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                        onClick={() =>
-                            navigator.clipboard.writeText(project.id.toString())
-                        }
-                    >
-                        <RiFileCopy2Fill />
-                        Kopieër ID
+                    <DropdownMenuItem onClick={() => onEdit(project)}>
+                        <RiEditFill />
+                        Bewerken
                     </DropdownMenuItem>
-
                     <DropdownMenuItem
                         variant="destructive"
                         onClick={handleDeleteProject}

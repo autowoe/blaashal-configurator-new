@@ -10,9 +10,36 @@ export interface GetProjectsParams {
     status?: string[];
 }
 
+export interface GetProjectConfigurationsParams {
+    isActive?: boolean;
+}
+
 export interface CreateProjectPayload {
     name: string
     organization: number
+}
+
+export interface UpdateProjectPayload {
+    name?: string
+    organization?: number
+    status?: string
+}
+
+export async function getProjectConfigurations(
+    projectId: string | number,
+    params: GetProjectConfigurationsParams = {}
+): Promise<ExistingConfiguration[]> {
+    const searchParams = new URLSearchParams();
+
+    if (params.isActive !== undefined) {
+        searchParams.set("is_active", String(params.isActive));
+    }
+
+    const query = searchParams.toString();
+
+    return apiFetchJson<ExistingConfiguration[]>(
+        `/projects/${projectId}/configurations/${query ? `?${query}` : ""}`
+    );
 }
 
 export async function getProjects(
@@ -34,27 +61,6 @@ export async function getProjects(
 }
 
 
-export interface GetProjectConfigurationsParams {
-    isActive?: boolean;
-}
-
-export async function getProjectConfigurations(
-    projectId: string | number,
-    params: GetProjectConfigurationsParams = {}
-): Promise<ExistingConfiguration[]> {
-    const searchParams = new URLSearchParams();
-
-    if (params.isActive !== undefined) {
-        searchParams.set("is_active", String(params.isActive));
-    }
-
-    const query = searchParams.toString();
-
-    return apiFetchJson<ExistingConfiguration[]>(
-        `/projects/${projectId}/configurations/${query ? `?${query}` : ""}`
-    );
-}
-
 export async function getProject(projectId: string | number): Promise<Project> {
     return apiFetchJson<Project>(`/projects/${projectId}`);
 }
@@ -62,6 +68,13 @@ export async function getProject(projectId: string | number): Promise<Project> {
 export async function createProject(payload: CreateProjectPayload): Promise<Project> {
     return apiFetchJson<Project>("/projects/", {
         method: "POST",
+        body: JSON.stringify(payload),
+    })
+}
+
+export async function updateProject(projectId: string | number, payload: UpdateProjectPayload): Promise<Project> {
+    return apiFetchJson<Project>(`/projects/${projectId}/`, {
+        method: "PATCH",
         body: JSON.stringify(payload),
     })
 }
