@@ -10,9 +10,10 @@ import {
 } from "@/components/ui/command"
 import { RiSearchLine } from "@remixicon/react"
 import { Button } from "@/components/ui/button"
-import type { PaginatedProjects, Project } from "@/lib/types/project"
+import type { Project } from "@/lib/types/project"
 import { Badge } from "@/components/ui/badge"
 import { statusConfig } from "@/components/tables/projects/status-config"
+import { getProjects } from "@/lib/api/services/projects.service"
 
 export function ProjectCommand() {
     const [open, setOpen] = useState(false)
@@ -41,15 +42,12 @@ export function ProjectCommand() {
             setSearchResults([])
             return
         }
-        const res = await fetch(
-            `http://localhost:8000/api/projects?search=${encodeURIComponent(value)}`
-        )
-        if (!res.ok) {
+        try {
+            const data = await getProjects({ search: value, pageSize: 10 })
+            setSearchResults(data.results)
+        } catch {
             setSearchResults([])
-            return
         }
-        const data = (await res.json()) as PaginatedProjects
-        setSearchResults(data.results)
     }
 
     return (
@@ -71,7 +69,7 @@ export function ProjectCommand() {
                         {results.map((project) => (
                             <CommandItem
                                 key={project.id}
-                                value={project.name}
+                                value={`${project.name}-${project.id}`}
                                 className="[&_svg:last-child]:hidden"
                                 onSelect={() => {
                                     navigate(`/projects/${project.id}`)
