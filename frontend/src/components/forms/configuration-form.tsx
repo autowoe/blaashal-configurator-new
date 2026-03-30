@@ -2,10 +2,10 @@ import { useNavigate } from "react-router"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
+import { forwardRef, useEffect, useImperativeHandle } from "react"
 import type { Project } from "@/lib/types/project"
 import type { ConfigurationType, ComponentPrice, ExistingConfiguration } from "@/lib/types/configuration"
 import { createProjectConfiguration } from "@/lib/api/services/configuration.service"
-import { Button } from "@/components/ui/button"
 import { Field, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -18,21 +18,30 @@ const configurationSchema = z.object({
 
 type ConfigurationFormValues = z.infer<typeof configurationSchema>
 
+export interface ConfigurationFormRef {
+    isDirty: boolean
+    isSubmitting: boolean
+    submit: () => void
+    reset: () => void
+}
+
 interface ConfigurationFormProps {
     project: Project
     types: ConfigurationType[]
     components: ComponentPrice[]
     existingConfig: ExistingConfiguration | null
     activeTypeId: string | null
+    onDirtyChange?: (isDirty: boolean) => void
 }
 
-export const ConfigurationForm = ({
+export const ConfigurationForm = forwardRef<ConfigurationFormRef, ConfigurationFormProps>(({
     project,
     types,
     components,
     existingConfig,
     activeTypeId,
-}: ConfigurationFormProps) => {
+    onDirtyChange
+}, ref) => {
     const navigate = useNavigate()
 
     const form = useForm<ConfigurationFormValues>({
@@ -51,6 +60,13 @@ export const ConfigurationForm = ({
     const total = components
         .filter((c) => selectedComponents.includes(c.component.id))
         .reduce((sum, c) => sum + parseFloat(c.verkoop), 0)
+
+    const defaultValues = {
+        configuration_type: activeTypeId
+            ? Number(activeTypeId)
+            : existingConfig?.configuration_type.id ?? undefined,
+        selected_components: existingConfig?.data.selected_components ?? [],
+    }
 
     const onSubmit = async (values: ConfigurationFormValues) => {
         try {
@@ -82,6 +98,17 @@ export const ConfigurationForm = ({
             toast("Opslaan van de configuratie is mislukt", { type: "error" })
         }
     }
+
+    useEffect(() => {
+        onDirtyChange?.(isDirty)
+    }, [isDirty])
+
+    useImperativeHandle(ref, () => ({
+        isDirty,
+        isSubmitting,
+        submit: () => form.handleSubmit(onSubmit)(),
+        reset: () => form.reset(defaultValues),
+    }))
 
     return (
         <form id="configuration-form" onSubmit={form.handleSubmit(onSubmit)}>
@@ -191,28 +218,8 @@ export const ConfigurationForm = ({
                     </div>
                 )}
             </div>
-
-            {isDirty && (
-                <div className="flex items-center justify-between pt-4">
-                    <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={() =>
-                            form.reset({
-                                configuration_type: activeTypeId
-                                    ? Number(activeTypeId)
-                                    : existingConfig?.configuration_type.id ?? undefined,
-                                selected_components: existingConfig?.data.selected_components ?? [],
-                            })
-                        }
-                    >
-                        Reset
-                    </Button>
-                    <Button type="submit" form="configuration-form" disabled={isSubmitting}>
-                        {isSubmitting ? "Bezig..." : "Opslaan"}
-                    </Button>
-                </div>
-            )}
         </form>
     )
-}
+})
+
+ConfigurationForm.displayName = "ConfigurationForm"

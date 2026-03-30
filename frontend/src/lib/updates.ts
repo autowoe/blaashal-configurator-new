@@ -10,6 +10,13 @@ export interface AppUpdate {
 
 export const updates: AppUpdate[] = [
     {
+        id: "2026-03-30-offerte-versturen",
+        date: "2026-03-30",
+        title: "Offerte versturen",
+        description: "Vanuit een project kan nu een offerte verstuurd worden. De configuratieprijzen worden hierbij vastgelegd.",
+        type: "feature",
+    },
+    {
         id: "2026-03-30-project-edit",
         date: "2026-03-30",
         title: "Projecten bewerken",
