@@ -8,22 +8,24 @@ import {
 import { Button } from "@/components/ui/button"
 import { CreateProjectForm } from "@/components/forms/create-project-form"
 import { useState } from "react"
-import { useRevalidator } from "react-router"
+import { RiAddLine } from "@remixicon/react"
 
 export function CreateProjectDialog() {
     const [open, setOpen] = useState(false)
-    const revalidator = useRevalidator()
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger>
-                <Button>Nieuw project</Button>
+                <Button>
+                    <RiAddLine className="sm:hidden h-4 w-4" />
+                    <span className="hidden sm:inline">Nieuw project</span>
+                </Button>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Nieuw project</DialogTitle>
                 </DialogHeader>
-                <CreateProjectForm onSuccess={() => { setOpen(false); revalidator.revalidate() }} />
+                <CreateProjectForm />
             </DialogContent>
         </Dialog>
     )

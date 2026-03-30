@@ -15,7 +15,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table"
-
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Field, FieldLabel } from "@/components/ui/field"
 
 import {
@@ -44,6 +44,9 @@ import { CreateProjectDialog } from "@/components/create-project-dialog"
 import type { Project } from "@/lib/types/project"
 import { useState } from "react"
 import { EditProjectDialog } from "@/components/edit-project-dialog"
+import { Button } from "@/components/ui/button"
+import { RiFilter3Line } from "@remixicon/react"
+import { Checkbox } from "@/components/ui/checkbox"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
@@ -90,15 +93,17 @@ export function DataTable<TData, TValue>({
 
     return (
         <>
-            <div className="flex flex-row justify-between gap-2 mb-2">
-                <div className="flex flex-row">
+            <div className="flex flex-row justify-between gap-2 mb-2 flex-wrap">
+                <div className="flex flex-row gap-2 items-center">
                     <Input
-                        className="w-32"
+                        className="w-32 shrink-0"
                         placeholder="Zoeken..."
                         value={search}
                         onChange={(e) => onSearchChange(e.target.value)}
                     />
-                    <div className="flex gap-2 items-center">
+
+                    {/* Desktop filters */}
+                    <div className="hidden sm:flex gap-2 items-center flex-wrap">
                         {Object.entries(statusConfig).map(([value, config]) => {
                             const isActive = status.includes(value)
                             return (
@@ -117,6 +122,49 @@ export function DataTable<TData, TValue>({
                                 </Badge>
                             )
                         })}
+                    </div>
+
+                    {/* Mobile filter popover */}
+                    <div className="flex sm:hidden">
+                        <Popover>
+                            <PopoverTrigger>
+                                <Button variant="outline" className="relative">
+                                    <RiFilter3Line className="h-4 w-4 mr-1" />
+                                    Filter
+                                    {status.length > 0 && (
+                                        <span className="ml-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground font-medium">
+                                            {status.length}
+                                        </span>
+                                    )}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent align="start" className="w-48 p-3">
+                                <div className="flex flex-col gap-1">
+                                    {Object.entries(statusConfig).map(([value, config]) => {
+                                        const isActive = status.includes(value)
+                                        return (
+                                            <label
+                                                key={value}
+                                                className="flex items-center gap-2 px-2 py-1.5 rounded-md cursor-pointer hover:bg-muted transition-colors"
+                                            >
+                                                <Checkbox
+                                                    checked={isActive}
+                                                    onCheckedChange={(checked) => {
+                                                        const next = checked
+                                                            ? [...status, value]
+                                                            : status.filter((s) => s !== value)
+                                                        onStatusChange(next)
+                                                    }}
+                                                />
+                                                <span className={`text-sm ${config.className} border-none`}>
+                                                    {config.label}
+                                                </span>
+                                            </label>
+                                        )
+                                    })}
+                                </div>
+                            </PopoverContent>
+                        </Popover>
                     </div>
                 </div>
                 <CreateProjectDialog />
@@ -224,25 +272,38 @@ export function DataTable<TData, TValue>({
                                 pages.push(total - 1)
                             }
 
-                            return pages.map((page, i) =>
-                                page === "ellipsis" ? (
-                                    <PaginationItem key={`ellipsis-${i}`}>
-                                        <PaginationEllipsis />
-                                    </PaginationItem>
-                                ) : (
-                                    <PaginationItem key={page}>
-                                        <PaginationLink
-                                            href="#"
-                                            isActive={page === current}
-                                            onClick={(e) => {
-                                                e.preventDefault()
-                                                table.setPageIndex(page)
-                                            }}
-                                        >
-                                            {page + 1}
-                                        </PaginationLink>
-                                    </PaginationItem>
-                                )
+                            return (
+                                <>
+                                    <span className="contents sm:hidden">
+                                        <PaginationItem>
+                                            <PaginationLink href="#" isActive onClick={(e) => e.preventDefault()}>
+                                                {current + 1}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    </span>
+                                    <span className="hidden sm:contents">
+                                        {pages.map((page, i) =>
+                                            page === "ellipsis" ? (
+                                                <PaginationItem key={`ellipsis-${i}`}>
+                                                    <PaginationEllipsis />
+                                                </PaginationItem>
+                                            ) : (
+                                                <PaginationItem key={page}>
+                                                    <PaginationLink
+                                                        href="#"
+                                                        isActive={page === current}
+                                                        onClick={(e) => {
+                                                            e.preventDefault()
+                                                            table.setPageIndex(page)
+                                                        }}
+                                                    >
+                                                        {page + 1}
+                                                    </PaginationLink>
+                                                </PaginationItem>
+                                            )
+                                        )}
+                                    </span>
+                                </>
                             )
                         })()}
 
