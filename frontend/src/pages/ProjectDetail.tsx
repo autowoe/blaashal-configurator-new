@@ -72,122 +72,142 @@ export const ProjectDetail = () => {
     }
 
     return (
-        <div className="h-full min-h-0 bg-background text-foreground flex flex-col overflow-hidden">
-            <div className="max-w-7xl mx-auto w-full px-8 pt-8 flex flex-col flex-1 min-h-0">
-                <div className="shrink-0">
-                    <div className="flex justify-between items-start">
-                        <div className="space-y-1">
-                            <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
-                                Project configuratie
-                            </p>
-                            <h1 className="text-2xl font-semibold tracking-tight">
-                                {project.name}
-                            </h1>
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                <span>{project.organization.name}</span>
-                                <span className="text-border">·</span>
-                                <span>{createdAt}</span>
-                            </div>
-                        </div>
+        <div className="h-full bg-background text-foreground flex flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto">
+                <div className="mx-auto w-full lg:h-full lg:min-h-0">
+                    <div className="flex flex-col gap-6 lg:h-full lg:min-h-0">
+                        <div className="shrink-0">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                                <div className="space-y-2">
+                                    <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
+                                        Project configuratie
+                                    </p>
 
-                        <Badge
-                            variant={statusConfig[project.status].variant}
-                            className={statusConfig[project.status].className}
-                        >
-                            {statusConfig[project.status].label}
-                        </Badge>
-                    </div>
-                </div>
+                                    <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                                        {project.name}
+                                    </h1>
 
-                <div className="mt-6 flex-1 min-h-0">
-                    {isLocked ? (
-                        <div className="mx-auto w-full max-w-2xl h-full min-h-0">
-                            <div className="h-full min-h-0 rounded-xl border border-border bg-card text-card-foreground overflow-hidden flex flex-col">
-                                <div className="px-5 py-4 border-b border-border flex justify-between items-center gap-2 shrink-0">
-                                    <div className="flex gap-2 items-center">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
-                                        <span className="text-xs font-medium tracking-wider uppercase text-muted-foreground">
-                                            Vastgelegde prijzen
-                                        </span>
+                                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                                        <span>{project.organization.name}</span>
+                                        <span className="hidden sm:inline text-border">·</span>
+                                        <span>{createdAt}</span>
                                     </div>
 
-                                    {existingConfig && (
-                                        <Badge>{existingConfig.configuration_type.name}</Badge>
-                                    )}
-                                </div>
-
-                                <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-border">
-                                    {Object.values(snapshot).map((item) => (
-                                        <div
-                                            key={item.name}
-                                            className="flex items-center justify-between px-5 py-3.5"
+                                    <div className="pt-1 sm:hidden">
+                                        <Badge
+                                            variant={statusConfig[project.status].variant}
+                                            className={statusConfig[project.status].className}
                                         >
-                                            <span className="text-sm text-foreground/90">
-                                                {item.name}
-                                            </span>
-                                            <span className="text-sm tabular-nums font-medium">
-                                                € {parseFloat(item.verkoop).toLocaleString("nl-NL")}
-                                            </span>
-                                        </div>
-                                    ))}
+                                            {statusConfig[project.status].label}
+                                        </Badge>
+                                    </div>
                                 </div>
 
-                                <div className="px-5 py-4 border-t border-border bg-muted/30 flex items-center justify-between shrink-0">
-                                    <span className="text-sm font-medium">Totaal</span>
-                                    <span className="text-lg font-semibold tabular-nums">
-                                        € {snapshotTotal.toLocaleString("nl-NL")}
-                                    </span>
+                                <div className="hidden sm:block">
+                                    <Badge
+                                        variant={statusConfig[project.status].variant}
+                                        className={statusConfig[project.status].className}
+                                    >
+                                        {statusConfig[project.status].label}
+                                    </Badge>
                                 </div>
                             </div>
                         </div>
-                    ) : (
-                        <div
-                            className={`h-full min-h-0 grid gap-6 ${showPreview
-                                ? "grid-cols-1 xl:grid-cols-[minmax(0,1fr)_520px]"
-                                : "grid-cols-1"
-                                }`}
-                        >
-                            <div
-                                className={
-                                    showPreview
-                                        ? "h-full min-h-0"
-                                        : "mx-auto w-full max-w-2xl h-full min-h-0"
-                                }
-                            >
-                                <ConfigurationForm
-                                    ref={formRef}
-                                    project={project}
-                                    types={types}
-                                    components={components}
-                                    existingConfig={existingConfig}
-                                    activeTypeId={activeTypeId}
-                                    onDirtyChange={setIsDirty}
-                                    onSelectedComponentsChange={setSelectedComponentIds}
-                                />
-                            </div>
 
-                            {showPreview && (
-                                <div className="h-full min-h-0">
-                                    <Configuration3DPreview
-                                        visualizations={visualizations}
-                                        selectedComponentIds={selectedComponentIds}
-                                    />
+                        <div className="lg:flex-1 lg:min-h-0">
+                            {isLocked ? (
+                                <div className="mx-auto w-full max-w-2xl lg:h-full lg:min-h-0">
+                                    <div className="rounded-xl border border-border bg-card text-card-foreground overflow-hidden lg:flex lg:h-full lg:min-h-0 lg:flex-col">
+                                        <div className="px-4 py-4 sm:px-5 border-b border-border shrink-0 flex flex-wrap items-center justify-between gap-2">
+                                            <div className="flex gap-2 items-center">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/50" />
+                                                <span className="text-xs font-medium tracking-wider uppercase text-muted-foreground">
+                                                    Vastgelegde prijzen
+                                                </span>
+                                            </div>
+
+                                            {existingConfig && (
+                                                <Badge>{existingConfig.configuration_type.name}</Badge>
+                                            )}
+                                        </div>
+
+                                        <div className="divide-y divide-border lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
+                                            {Object.values(snapshot).map((item) => (
+                                                <div
+                                                    key={item.name}
+                                                    className="flex items-center justify-between gap-4 px-4 py-3.5 sm:px-5"
+                                                >
+                                                    <span className="min-w-0 text-sm text-foreground/90">
+                                                        {item.name}
+                                                    </span>
+                                                    <span className="shrink-0 text-sm tabular-nums font-medium">
+                                                        € {parseFloat(item.verkoop).toLocaleString("nl-NL")}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="px-4 py-4 sm:px-5 border-t border-border bg-muted/30 flex items-center justify-between shrink-0">
+                                            <span className="text-sm font-medium">Totaal</span>
+                                            <span className="text-lg font-semibold tabular-nums">
+                                                € {snapshotTotal.toLocaleString("nl-NL")}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div
+                                    className={`grid gap-6 lg:h-full lg:min-h-0 ${showPreview
+                                        ? "grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_460px]"
+                                        : "grid-cols-1"
+                                        }`}
+                                >
+                                    <div
+                                        className={
+                                            showPreview
+                                                ? "min-w-0 lg:h-[full] lg:min-h-0"
+                                                : "mx-auto w-full max-w-2xl min-w-0 lg:h-full lg:min-h-0"
+                                        }
+                                    >
+                                        <ConfigurationForm
+                                            ref={formRef}
+                                            project={project}
+                                            types={types}
+                                            components={components}
+                                            existingConfig={existingConfig}
+                                            activeTypeId={activeTypeId}
+                                            onDirtyChange={setIsDirty}
+                                            onSelectedComponentsChange={setSelectedComponentIds}
+                                        />
+                                    </div>
+
+                                    {showPreview && (
+                                        <div className="min-w-0 lg:h-full lg:min-h-0">
+                                            <Configuration3DPreview
+                                                visualizations={visualizations}
+                                                selectedComponentIds={selectedComponentIds}
+                                            />
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
-                    )}
+
+                        <div className="h-4 sm:h-6 lg:hidden" />
+                    </div>
                 </div>
             </div>
 
-            <div className="shrink-0 border-t border-border bg-background px-8 py-4 mt-6">
-                <div className="max-w-7xl mx-auto flex items-center justify-between">
-                    <div className="flex flex-row gap-5 items-center">
+            <div className="shrink-0 border-t border-border bg-background/95 backdrop-blur px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sticky bottom-0 mt-3">
+                <div className="mx-auto max-w-7xl flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-5">
                         {isDraft && (
                             <Button
                                 variant="outline"
                                 onClick={handleSendQuote}
                                 disabled={isSendingQuote || isDirty}
                                 title={isDirty ? "Sla de configuratie eerst op" : undefined}
+                                className="w-full sm:w-auto"
                             >
                                 <RiSendPlaneLine className="h-4 w-4 mr-2" />
                                 {isSendingQuote ? "Bezig..." : "Verstuur offerte"}
@@ -211,25 +231,25 @@ export const ProjectDetail = () => {
                         )}
                     </div>
 
-                    <div className="flex items-center gap-2">
-                        {!isLocked && isDirty && (
-                            <>
-                                <Button
-                                    type="button"
-                                    variant="destructive"
-                                    onClick={() => formRef.current?.reset()}
-                                >
-                                    Reset
-                                </Button>
-                                <Button
-                                    type="button"
-                                    onClick={() => formRef.current?.submit()}
-                                >
-                                    Opslaan
-                                </Button>
-                            </>
-                        )}
-                    </div>
+                    {!isLocked && isDirty && (
+                        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                onClick={() => formRef.current?.reset()}
+                                className="w-full sm:w-auto"
+                            >
+                                Reset
+                            </Button>
+                            <Button
+                                type="button"
+                                onClick={() => formRef.current?.submit()}
+                                className="w-full sm:w-auto"
+                            >
+                                Opslaan
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

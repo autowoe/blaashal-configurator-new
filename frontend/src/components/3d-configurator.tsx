@@ -146,26 +146,30 @@ export function Configuration3DPreview({
     return (
         <div
             className={[
-                "h-full min-h-0 rounded-xl border border-border bg-card text-card-foreground overflow-hidden flex flex-col",
+                "rounded-xl border border-border bg-card text-card-foreground overflow-hidden flex flex-col",
+                "h-[260px] sm:h-[320px] lg:h-full lg:min-h-0",
                 className,
             ]
                 .filter(Boolean)
                 .join(" ")}
         >
-            <div className="flex items-center justify-between border-b border-border px-5 py-4 shrink-0">
-                <div className="flex items-center gap-2">
-                    <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
-                    <span className="text-xs font-medium tracking-wider uppercase text-muted-foreground">
-                        3D visualisatie
-                    </span>
+            <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-4 sm:px-5 shrink-0">
+                <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                        <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
+                        <span className="text-xs font-medium tracking-wider uppercase text-muted-foreground">
+                            3D visualisatie
+                        </span>
+                    </div>
+
+                    <p className="mt-2 text-sm text-muted-foreground">
+                        {visibleVisualizations.length} objecten
+                    </p>
                 </div>
 
-                <div className="flex flex-row gap-5 items-center">
-                    <span className="text-xs text-muted-foreground">
-                        {visibleVisualizations.length} objecten
-                    </span>
-                    <Badge variant="destructive">In ontwikkeling</Badge>
-                </div>
+                <Badge variant="destructive" className="shrink-0">
+                    In ontwikkeling
+                </Badge>
             </div>
 
             <div className="flex-1 min-h-0 w-full bg-muted/20">

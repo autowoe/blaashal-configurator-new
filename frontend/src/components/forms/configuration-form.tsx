@@ -133,10 +133,10 @@ export const ConfigurationForm = forwardRef<ConfigurationFormRef, ConfigurationF
             <form
                 id="configuration-form"
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="h-full min-h-0"
+                className="w-full lg:h-full lg:min-h-0"
             >
-                <div className="h-full min-h-0 rounded-xl border border-border bg-card text-card-foreground overflow-hidden flex flex-col">
-                    <div className="px-5 py-5 border-b border-border shrink-0">
+                <div className="rounded-xl border border-border bg-card text-card-foreground overflow-hidden lg:flex lg:h-full lg:min-h-0 lg:flex-col">
+                    <div className="px-4 py-5 sm:px-5 border-b border-border shrink-0">
                         <FieldGroup>
                             <Controller
                                 name="configuration_type"
@@ -153,7 +153,7 @@ export const ConfigurationForm = forwardRef<ConfigurationFormRef, ConfigurationF
                                                 navigate(`?configuration_type=${value}`)
                                             }}
                                         >
-                                            <SelectTrigger className="mt-1.5" aria-invalid={fieldState.invalid}>
+                                            <SelectTrigger className="mt-1.5 w-full" aria-invalid={fieldState.invalid}>
                                                 <SelectValue placeholder="Kies een type...">
                                                     {field.value
                                                         ? types.find((t) => t.id === field.value)?.name
@@ -182,61 +182,63 @@ export const ConfigurationForm = forwardRef<ConfigurationFormRef, ConfigurationF
                             render={({ field, fieldState }) => (
                                 <Field
                                     data-invalid={fieldState.invalid}
-                                    className="flex flex-col flex-1 min-h-0 overflow-hidden"
+                                    className="flex flex-col lg:flex-1 lg:min-h-0 lg:overflow-hidden"
                                 >
-                                    <div className="px-5 pt-4 pb-1 shrink-0">
+                                    <div className="px-4 pt-4 pb-1 sm:px-5 shrink-0">
                                         <FieldLabel className="text-xs font-medium tracking-wider uppercase text-muted-foreground">
                                             Componenten
                                         </FieldLabel>
                                     </div>
 
-                                    <ScrollArea className="flex-1 min-h-0">
-                                        <div className="divide-y divide-border">
-                                            {components.map((c) => {
-                                                const checked = field.value.includes(c.component.id)
+                                    <div className="lg:flex-1 lg:min-h-0 lg:overflow-hidden">
+                                        <ScrollArea className="lg:max-h-[40vh] lg:h-full lg:max-h-none">
+                                            <div className="divide-y divide-border">
+                                                {components.map((c) => {
+                                                    const checked = field.value.includes(c.component.id)
 
-                                                return (
-                                                    <label
-                                                        key={c.id}
-                                                        htmlFor={`component-${c.id}`}
-                                                        className={[
-                                                            "flex items-center justify-between px-5 py-3.5 cursor-pointer transition-colors",
-                                                            checked ? "bg-secondary" : "hover:bg-muted/60",
-                                                        ].join(" ")}
-                                                    >
-                                                        <div className="flex items-center gap-3">
-                                                            <Checkbox
-                                                                id={`component-${c.id}`}
-                                                                checked={checked}
-                                                                onCheckedChange={(val) => {
-                                                                    field.onChange(
-                                                                        val
-                                                                            ? [...field.value, c.component.id]
-                                                                            : field.value.filter((id) => id !== c.component.id)
-                                                                    )
-                                                                }}
-                                                            />
-                                                            <p className="text-sm font-medium text-foreground">
-                                                                {c.component.name}
-                                                            </p>
-                                                        </div>
-
-                                                        <span
+                                                    return (
+                                                        <label
+                                                            key={c.id}
+                                                            htmlFor={`component-${c.id}`}
                                                             className={[
-                                                                "text-sm tabular-nums font-medium",
-                                                                checked ? "text-primary" : "text-muted-foreground",
+                                                                "flex items-center justify-between gap-4 px-4 py-3.5 sm:px-5 cursor-pointer transition-colors",
+                                                                checked ? "bg-secondary" : "hover:bg-muted/60",
                                                             ].join(" ")}
                                                         >
-                                                            € {parseFloat(c.verkoop).toLocaleString("nl-NL")}
-                                                        </span>
-                                                    </label>
-                                                )
-                                            })}
-                                        </div>
-                                    </ScrollArea>
+                                                            <div className="flex min-w-0 items-center gap-3">
+                                                                <Checkbox
+                                                                    id={`component-${c.id}`}
+                                                                    checked={checked}
+                                                                    onCheckedChange={(val) => {
+                                                                        field.onChange(
+                                                                            val
+                                                                                ? [...field.value, c.component.id]
+                                                                                : field.value.filter((id) => id !== c.component.id)
+                                                                        )
+                                                                    }}
+                                                                />
+                                                                <p className="truncate text-sm font-medium text-foreground">
+                                                                    {c.component.name}
+                                                                </p>
+                                                            </div>
+
+                                                            <span
+                                                                className={[
+                                                                    "shrink-0 text-sm tabular-nums font-medium",
+                                                                    checked ? "text-primary" : "text-muted-foreground",
+                                                                ].join(" ")}
+                                                            >
+                                                                € {parseFloat(c.verkoop).toLocaleString("nl-NL")}
+                                                            </span>
+                                                        </label>
+                                                    )
+                                                })}
+                                            </div>
+                                        </ScrollArea>
+                                    </div>
 
                                     {fieldState.invalid && (
-                                        <div className="px-5 py-3 shrink-0">
+                                        <div className="px-4 py-3 sm:px-5 shrink-0">
                                             <FieldError errors={[fieldState.error]} />
                                         </div>
                                     )}
@@ -246,7 +248,7 @@ export const ConfigurationForm = forwardRef<ConfigurationFormRef, ConfigurationF
                     )}
 
                     {selectedComponents.length > 0 && (
-                        <div className="px-5 py-4 border-t border-border bg-muted/30 flex items-center justify-between shrink-0">
+                        <div className="px-4 py-4 sm:px-5 border-t border-border bg-muted/30 flex items-center justify-between shrink-0">
                             <span className="text-sm font-medium">Totaal</span>
                             <span className="text-lg font-semibold tabular-nums">
                                 € {total.toLocaleString("nl-NL")}
