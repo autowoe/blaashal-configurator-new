@@ -23,5 +23,8 @@ class ComponentPrice(TimeStampedModel):
         max_digits=10, decimal_places=2, null=True, blank=True
     )
 
+    def __str__(self):
+        return f"{self.configuration_type.name} - {self.component.name}"
+
     class Meta:
         unique_together = ("configuration_type", "component")

@@ -10,6 +10,13 @@ export interface AppUpdate {
 
 export const updates: AppUpdate[] = [
     {
+        id: "2026-03-31-3d-configurator",
+        date: "2026-03-31",
+        title: "3D Visualisatie (in ontwikkeling)",
+        description: "Een eerste versie van de 3D configurator is beschikbaar als preview. De visualisatie toont een 3D-weergave van de installatie op basis van de geselecteerde componenten. De preview is nog in ontwikkeling.",
+        type: "feature",
+    },
+    {
         id: "2026-03-30-offerte-versturen",
         date: "2026-03-30",
         title: "Offerte versturen",

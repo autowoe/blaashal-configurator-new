@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "projects",
     "components",
     "configurations",
+    "visualization",
 ]
 
 MIDDLEWARE = [

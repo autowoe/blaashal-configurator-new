@@ -27,6 +27,7 @@ urlpatterns = [
     path("api/", include("organizations.urls")),
     path("api/", include("projects.urls")),
     path("api/", include("components.urls")),
+    path("api/", include("visualization.urls")),
     path("api/", include(projects_router.urls)),
     # Core urls
     path("api/dashboard/", DashboardView.as_view()),

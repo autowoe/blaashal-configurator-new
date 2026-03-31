@@ -7,6 +7,7 @@ import {
     getConfigurationTypes,
     getConfigurationComponents,
 } from "@/lib/api/services/configuration.service";
+import { getVisualizations } from "@/lib/api/services/visualization.service";
 
 export const ProjectDetailLoader = async ({ params, request }: LoaderFunctionArgs) => {
     const projectId = params.id;
@@ -29,14 +30,18 @@ export const ProjectDetailLoader = async ({ params, request }: LoaderFunctionArg
         configurationType ??
         (existingConfig ? String(existingConfig.configuration_type.id) : null);
 
-    const components = typeToFetch
-        ? await getConfigurationComponents({ configurationType: typeToFetch })
-        : [];
+    const [components, visualizations] = typeToFetch
+        ? await Promise.all([
+            getConfigurationComponents({ configurationType: typeToFetch }),
+            getVisualizations(Number(typeToFetch)),
+        ])
+        : [[], []];
 
     return {
         project,
         types,
         components,
+        visualizations,
         existingConfig,
         activeTypeId: typeToFetch,
     };
