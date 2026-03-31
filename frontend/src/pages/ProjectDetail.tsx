@@ -16,7 +16,6 @@ import {
 import { updateProject } from "@/lib/api/services/projects.service"
 import { toast } from "react-toastify"
 import { RiSendPlaneLine } from "@remixicon/react"
-import { useSidebar } from "@/components/ui/sidebar"
 import type { Visualization } from "@/lib/types/visualization"
 import { Configuration3DPreview } from "@/components/3d-configurator"
 import { Switch } from "@/components/ui/switch"
@@ -34,7 +33,6 @@ export const ProjectDetail = () => {
             activeTypeId: string | null
         }
 
-    const { state } = useSidebar()
     const revalidator = useRevalidator()
     const formRef = useRef<ConfigurationFormRef>(null)
 
