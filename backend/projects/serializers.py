@@ -18,6 +18,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
 class ProjectCreateSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=255)
+    created_by = serializers.HiddenField(default=serializers.CurrentUserDefault())
     organization = serializers.PrimaryKeyRelatedField(
         queryset=Organization.objects.all()
     )
