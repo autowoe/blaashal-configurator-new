@@ -46,8 +46,6 @@ def logout_view(request):
 
 class MeView(APIView):
     def get(self, request):
-        print("IS AUTHENTICATED:", request.user.is_authenticated)
-        print("USER:", request.user)
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 

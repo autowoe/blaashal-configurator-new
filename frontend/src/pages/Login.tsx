@@ -12,7 +12,7 @@ export const Login = () => {
         const reason = searchParams.get("reason");
 
         if (reason === "session_expired") {
-            toast("Session expired, please log in again", { type: "warning" });
+            toast("Sessie verlopen, log opnieuw in.", { type: "warning" });
 
             const next = new URLSearchParams(searchParams);
             next.delete("reason");
