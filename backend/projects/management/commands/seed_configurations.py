@@ -8,7 +8,7 @@ from visualization.models import (
 )
 
 CONFIGURATION_DATA = {
-    "2b tennis": {
+    "Tennis - 2 Baans": {
         "RVS kabelnet": {"inkoop": 8492, "verkoop": 12313},
         "Halhuid en deuren": {"inkoop": 46551, "verkoop": 67499},
         "Verankering": {"inkoop": 21843, "verkoop": 31672},
@@ -17,7 +17,7 @@ CONFIGURATION_DATA = {
         "UV beschermfolie": {"inkoop": 887, "verkoop": 1286},
         "Verlichting": {"inkoop": 21575, "verkoop": 31283},
     },
-    "3b tennis": {
+    "Tennis - 3 Baans": {
         "RVS kabelnet": {"inkoop": 19188, "verkoop": 27823},
         "Halhuid en deuren": {"inkoop": 55948, "verkoop": 81125},
         "Verankering": {"inkoop": 26427, "verkoop": 38319},
@@ -26,7 +26,7 @@ CONFIGURATION_DATA = {
         "UV beschermfolie": {"inkoop": 1109, "verkoop": 1608},
         "Verlichting": {"inkoop": 27983, "verkoop": 40575},
     },
-    "4b tennis": {
+    "Tennis - 4 Baans": {
         "RVS kabelnet": {"inkoop": 27773, "verkoop": 40271},
         "Halhuid en deuren": {"inkoop": 74972, "verkoop": 108710},
         "Verankering": {"inkoop": 27323, "verkoop": 39618},
@@ -39,7 +39,7 @@ CONFIGURATION_DATA = {
 
 
 VISUALIZATION_DATA = {
-    "2b tennis": {
+    "Tennis - 2 Baans": {
         "Halhuid en deuren": [
             {
                 "name": "Main hall",
@@ -137,7 +137,7 @@ VISUALIZATION_DATA = {
             },
         ],
     },
-    "3b tennis": {
+    "Tennis - 3 Baans": {
         "Halhuid en deuren": [
             {
                 "name": "Main hall",
@@ -235,7 +235,7 @@ VISUALIZATION_DATA = {
             },
         ],
     },
-    "4b tennis": {
+    "Tennis - 4 Baans": {
         "Halhuid en deuren": [
             {
                 "name": "Main hall",

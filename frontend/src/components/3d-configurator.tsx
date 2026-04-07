@@ -161,10 +161,6 @@ export function Configuration3DPreview({
                             3D visualisatie
                         </span>
                     </div>
-
-                    <p className="mt-2 text-sm text-muted-foreground">
-                        {visibleVisualizations.length} objecten
-                    </p>
                 </div>
 
                 <Badge variant="destructive" className="shrink-0">

@@ -21,6 +21,10 @@ export const columns: ColumnDef<Project>[] = [
         cell: ({ row }) => <ProjectStatusBadgeCell row={row} />
     },
     {
+        accessorKey: "created_by.email",
+        header: "Aangemaakt door"
+    },
+    {
         id: "actions",
         header: "Acties",
         size: 2,

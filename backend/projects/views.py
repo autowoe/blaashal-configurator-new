@@ -19,7 +19,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
     pagination_class = ProjectPagination
 
     def get_serializer_class(self):
-        print(self.action)
         if self.action == "create":
             return ProjectCreateSerializer
         if self.action == "partial_update":
