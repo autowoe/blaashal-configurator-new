@@ -10,6 +10,13 @@ export interface AppUpdate {
 
 export const updates: AppUpdate[] = [
     {
+        id: "2026-04-29-subcomponenten",
+        date: "2026-04-29",
+        title: "Subcomponenten en invoertypes",
+        description: "Componenten kunnen nu subcomponenten bevatten die uitklappen zodra het hoofdcomponent is aangevinkt. Naast aan/uit-keuzes zijn er nu ook hoeveelheden, formules en keuzerondjes (select) per groep beschikbaar.",
+        type: "feature",
+    },
+    {
         id: "2026-03-31-3d-configurator",
         date: "2026-03-31",
         title: "3D Visualisatie",
