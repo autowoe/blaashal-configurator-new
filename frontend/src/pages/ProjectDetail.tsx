@@ -40,17 +40,17 @@ export const ProjectDetail = () => {
     const [isSendingQuote, setIsSendingQuote] = useState(false)
     const [isDirty, setIsDirty] = useState(false)
     const [selectedComponentIds, setSelectedComponentIds] = useState<number[]>(
-        existingConfig?.data.selected_components ?? []
+        existingConfig?.data.components?.map((c) => c.id) ?? []
     )
 
     const isLocked = LOCKED_STATUSES.includes(project.status)
     const isDraft = project.status === "draft"
 
     const snapshot = existingConfig?.data.price_snapshot ?? {}
-    const snapshotTotal = Object.values(snapshot).reduce(
-        (sum, item) => sum + parseFloat(item.verkoop),
-        0
-    )
+    const snapshotTotal = Object.values(snapshot).reduce((sum, item) => {
+        const qty = typeof item.value === "number" ? item.value : 1
+        return sum + parseFloat(item.verkoop) * qty
+    }, 0)
 
     const createdAt = new Intl.DateTimeFormat("nl-NL", {
         day: "numeric",
