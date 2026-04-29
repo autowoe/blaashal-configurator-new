@@ -11,8 +11,35 @@ class ConfigurationType(TimeStampedModel):
 
 
 class Component(TimeStampedModel):
+    INPUT_TYPE_BOOLEAN = "boolean"
+    INPUT_TYPE_QUANTITY = "quantity"
+    INPUT_TYPE_SELECT = "select"
+    INPUT_TYPE_FORMULA = "formula"
+
+    INPUT_TYPE_CHOICES = [
+        (INPUT_TYPE_BOOLEAN, "Boolean"),
+        (INPUT_TYPE_QUANTITY, "Quantity"),
+        (INPUT_TYPE_SELECT, "Select"),
+        (INPUT_TYPE_FORMULA, "Formula"),
+    ]
+
     name = models.CharField(max_length=100)
     order = models.PositiveIntegerField(default=0)
+    input_type = models.CharField(
+        max_length=20, choices=INPUT_TYPE_CHOICES, default=INPUT_TYPE_BOOLEAN
+    )
+    group_key = models.CharField(max_length=50, blank=True)
+    unit = models.CharField(max_length=20, blank=True)
+    parent = models.ForeignKey(
+        "self",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name="children",
+    )
+
+    def __str__(self):
+        return self.name
 
 
 class ComponentPrice(TimeStampedModel):

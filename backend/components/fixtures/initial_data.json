@@ -1,0 +1,137 @@
+[
+  {
+    "model": "components.configurationtype",
+    "pk": 1,
+    "fields": { "name": "2b tennis", "created_at": "2026-03-27T08:05:39.806Z", "updated_at": "2026-03-27T08:05:39.806Z" }
+  },
+  {
+    "model": "components.configurationtype",
+    "pk": 2,
+    "fields": { "name": "3b tennis", "created_at": "2026-03-27T08:05:39.872Z", "updated_at": "2026-03-27T08:05:39.872Z" }
+  },
+  {
+    "model": "components.configurationtype",
+    "pk": 3,
+    "fields": { "name": "4b tennis", "created_at": "2026-03-27T08:05:39.938Z", "updated_at": "2026-03-27T08:05:39.938Z" }
+  },
+
+  { "model": "components.component", "pk": 1, "fields": { "name": "RVS kabelnet",                  "order": 0, "input_type": "boolean", "group_key": "", "unit": "", "parent": null, "created_at": "2026-03-27T08:05:39.752Z", "updated_at": "2026-03-27T08:05:39.752Z" } },
+  { "model": "components.component", "pk": 2, "fields": { "name": "Halhuid en deuren",              "order": 1, "input_type": "boolean", "group_key": "", "unit": "", "parent": null, "created_at": "2026-03-27T08:05:39.760Z", "updated_at": "2026-03-27T08:05:39.760Z" } },
+  { "model": "components.component", "pk": 3, "fields": { "name": "Verankering",                    "order": 2, "input_type": "boolean", "group_key": "", "unit": "", "parent": null, "created_at": "2026-03-27T08:05:39.768Z", "updated_at": "2026-03-27T08:05:39.768Z" } },
+  { "model": "components.component", "pk": 4, "fields": { "name": "Ventilatorunit",                 "order": 3, "input_type": "boolean", "group_key": "", "unit": "", "parent": null, "created_at": "2026-03-27T08:05:39.775Z", "updated_at": "2026-03-27T08:05:39.775Z" } },
+  { "model": "components.component", "pk": 5, "fields": { "name": "Isolatie",                       "order": 4, "input_type": "boolean", "group_key": "", "unit": "", "parent": null, "created_at": "2026-03-27T08:05:39.783Z", "updated_at": "2026-03-27T08:05:39.783Z" } },
+  { "model": "components.component", "pk": 6, "fields": { "name": "UV beschermfolie",               "order": 5, "input_type": "boolean", "group_key": "", "unit": "", "parent": null, "created_at": "2026-03-27T08:05:39.791Z", "updated_at": "2026-03-27T08:05:39.791Z" } },
+  { "model": "components.component", "pk": 7, "fields": { "name": "Verlichting",                    "order": 6, "input_type": "boolean", "group_key": "", "unit": "", "parent": null, "created_at": "2026-03-27T08:05:39.798Z", "updated_at": "2026-03-27T08:05:39.798Z" } },
+  { "model": "components.component", "pk": 8, "fields": { "name": "Doekmateriaal",                  "order": 7, "input_type": "boolean", "group_key": "", "unit": "", "parent": null, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.component", "pk": 10, "fields": { "name": "Ankerdiepte",                   "order": 0, "input_type": "formula", "group_key": "", "unit": "m",    "parent": 3, "created_at": "2026-04-15T11:01:33.860Z", "updated_at": "2026-04-15T11:01:33.860Z" } },
+
+  { "model": "components.component", "pk": 11, "fields": { "name": "Nooddeur",                      "order": 0, "input_type": "quantity", "group_key": "", "unit": "stuks", "parent": 2, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.component", "pk": 12, "fields": { "name": "Draaideur",                     "order": 1, "input_type": "quantity", "group_key": "", "unit": "stuks", "parent": 2, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.component", "pk": 13, "fields": { "name": "Draaideur-sluis combinatie",    "order": 2, "input_type": "quantity", "group_key": "", "unit": "stuks", "parent": 2, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.component", "pk": 14, "fields": { "name": "Personensluis",                 "order": 3, "input_type": "quantity", "group_key": "", "unit": "stuks", "parent": 2, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.component", "pk": 15, "fields": { "name": "Watervast dak",                 "order": 0, "input_type": "select",   "group_key": "ventilator_optie", "unit": "", "parent": 4, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.component", "pk": 16, "fields": { "name": "Behuizing",                     "order": 1, "input_type": "select",   "group_key": "ventilator_optie", "unit": "", "parent": 4, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.component", "pk": 17, "fields": { "name": "Geen bescherming",              "order": 2, "input_type": "select",   "group_key": "ventilator_optie", "unit": "", "parent": 4, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.component", "pk": 18, "fields": { "name": "Dubbele isolatielaag",          "order": 0, "input_type": "boolean",  "group_key": "", "unit": "", "parent": 5, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.component", "pk": 19, "fields": { "name": "Transparant doek",              "order": 0, "input_type": "select",   "group_key": "doektype", "unit": "", "parent": 8, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.component", "pk": 20, "fields": { "name": "Standaard wit",                 "order": 1, "input_type": "select",   "group_key": "doektype", "unit": "", "parent": 8, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.component", "pk": 21, "fields": { "name": "Black-out",                     "order": 2, "input_type": "select",   "group_key": "doektype", "unit": "", "parent": 8, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.component", "pk": 22, "fields": { "name": "Gekleurde onderrand",           "order": 3, "input_type": "boolean",  "group_key": "", "unit": "", "parent": 8, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.component", "pk": 23, "fields": { "name": "Led armatuur 24.000 lm",        "order": 0, "input_type": "quantity", "group_key": "", "unit": "stuks", "parent": 7, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.component", "pk": 24, "fields": { "name": "Led armatuur 28.000 lm",        "order": 1, "input_type": "quantity", "group_key": "", "unit": "stuks", "parent": 7, "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 1,  "fields": { "configuration_type": 1, "component": 1, "inkoop": "8491.60",   "verkoop": "12312.82",  "created_at": "2026-03-27T08:05:39.815Z", "updated_at": "2026-03-27T08:05:39.815Z" } },
+  { "model": "components.componentprice", "pk": 2,  "fields": { "configuration_type": 1, "component": 2, "inkoop": "46551.35",  "verkoop": "67499.46",  "created_at": "2026-03-27T08:05:39.823Z", "updated_at": "2026-03-27T08:05:39.823Z" } },
+  { "model": "components.componentprice", "pk": 3,  "fields": { "configuration_type": 1, "component": 3, "inkoop": "21842.92",  "verkoop": "31672.23",  "created_at": "2026-03-27T08:05:39.831Z", "updated_at": "2026-03-27T08:05:39.831Z" } },
+  { "model": "components.componentprice", "pk": 4,  "fields": { "configuration_type": 1, "component": 4, "inkoop": "40696.09",  "verkoop": "58993.33",  "created_at": "2026-03-27T08:05:39.839Z", "updated_at": "2026-03-27T08:05:39.839Z" } },
+  { "model": "components.componentprice", "pk": 5,  "fields": { "configuration_type": 1, "component": 5, "inkoop": "4789.15",   "verkoop": "6944.27",   "created_at": "2026-03-27T08:05:39.848Z", "updated_at": "2026-03-27T08:05:39.848Z" } },
+  { "model": "components.componentprice", "pk": 6,  "fields": { "configuration_type": 1, "component": 6, "inkoop": "887.04",    "verkoop": "1286.21",   "created_at": "2026-03-27T08:05:39.856Z", "updated_at": "2026-03-27T08:05:39.856Z" } },
+  { "model": "components.componentprice", "pk": 7,  "fields": { "configuration_type": 1, "component": 7, "inkoop": "4134.57",   "verkoop": "5994.12",   "created_at": "2026-03-27T08:05:39.864Z", "updated_at": "2026-03-27T08:05:39.864Z" } },
+  { "model": "components.componentprice", "pk": 25, "fields": { "configuration_type": 1, "component": 8, "inkoop": "0.00",      "verkoop": "0.00",      "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 24, "fields": { "configuration_type": 1, "component": 10, "inkoop": "1017.90",  "verkoop": "1475.96",   "created_at": "2026-04-15T11:02:33.774Z", "updated_at": "2026-04-15T11:02:33.774Z" } },
+
+  { "model": "components.componentprice", "pk": 26, "fields": { "configuration_type": 1, "component": 11, "inkoop": "1950.80",  "verkoop": "2828.66",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 27, "fields": { "configuration_type": 1, "component": 12, "inkoop": "5762.35",  "verkoop": "8354.41",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 28, "fields": { "configuration_type": 1, "component": 13, "inkoop": "10956.40", "verkoop": "15886.78",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 29, "fields": { "configuration_type": 1, "component": 14, "inkoop": "8112.00",  "verkoop": "11762.40",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 30, "fields": { "configuration_type": 1, "component": 15, "inkoop": "1129.05",  "verkoop": "1637.12",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 31, "fields": { "configuration_type": 1, "component": 16, "inkoop": "6050.90",  "verkoop": "8773.81",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 32, "fields": { "configuration_type": 1, "component": 17, "inkoop": "0.00",     "verkoop": "0.00",      "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 33, "fields": { "configuration_type": 1, "component": 18, "inkoop": "3628.67",  "verkoop": "5261.57",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 34, "fields": { "configuration_type": 1, "component": 19, "inkoop": "9354.35",  "verkoop": "13563.80",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 35, "fields": { "configuration_type": 1, "component": 20, "inkoop": "8766.95",  "verkoop": "12712.08",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 36, "fields": { "configuration_type": 1, "component": 21, "inkoop": "10015.17", "verkoop": "14522.00",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 37, "fields": { "configuration_type": 1, "component": 22, "inkoop": "5596.88",  "verkoop": "8115.47",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 38, "fields": { "configuration_type": 1, "component": 23, "inkoop": "288.00",   "verkoop": "417.60",    "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 39, "fields": { "configuration_type": 1, "component": 24, "inkoop": "378.00",   "verkoop": "548.10",    "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 8,  "fields": { "configuration_type": 2, "component": 1, "inkoop": "19188.38",  "verkoop": "27823.15",  "created_at": "2026-03-27T08:05:39.880Z", "updated_at": "2026-03-27T08:05:39.880Z" } },
+  { "model": "components.componentprice", "pk": 9,  "fields": { "configuration_type": 2, "component": 2, "inkoop": "55947.99",  "verkoop": "81124.59",  "created_at": "2026-03-27T08:05:39.889Z", "updated_at": "2026-03-27T08:05:39.889Z" } },
+  { "model": "components.componentprice", "pk": 10, "fields": { "configuration_type": 2, "component": 3, "inkoop": "26426.92",  "verkoop": "38319.03",  "created_at": "2026-03-27T08:05:39.897Z", "updated_at": "2026-03-27T08:05:39.897Z" } },
+  { "model": "components.componentprice", "pk": 11, "fields": { "configuration_type": 2, "component": 4, "inkoop": "46184.65",  "verkoop": "66967.74",  "created_at": "2026-03-27T08:05:39.905Z", "updated_at": "2026-03-27T08:05:39.905Z" } },
+  { "model": "components.componentprice", "pk": 12, "fields": { "configuration_type": 2, "component": 5, "inkoop": "5174.77",   "verkoop": "7503.42",   "created_at": "2026-03-27T08:05:39.913Z", "updated_at": "2026-03-27T08:05:39.913Z" } },
+  { "model": "components.componentprice", "pk": 13, "fields": { "configuration_type": 2, "component": 6, "inkoop": "1108.80",   "verkoop": "1607.76",   "created_at": "2026-03-27T08:05:39.922Z", "updated_at": "2026-03-27T08:05:39.922Z" } },
+  { "model": "components.componentprice", "pk": 14, "fields": { "configuration_type": 2, "component": 7, "inkoop": "17614.72",  "verkoop": "25541.34",  "created_at": "2026-03-27T08:05:39.930Z", "updated_at": "2026-03-27T08:05:39.930Z" } },
+  { "model": "components.componentprice", "pk": 40, "fields": { "configuration_type": 2, "component": 8, "inkoop": "0.00",      "verkoop": "0.00",      "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 41, "fields": { "configuration_type": 2, "component": 10, "inkoop": "1230.84",  "verkoop": "1784.71",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 42, "fields": { "configuration_type": 2, "component": 11, "inkoop": "1950.80",  "verkoop": "2828.66",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 43, "fields": { "configuration_type": 2, "component": 12, "inkoop": "5762.35",  "verkoop": "8354.41",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 44, "fields": { "configuration_type": 2, "component": 13, "inkoop": "10956.40", "verkoop": "15886.78",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 45, "fields": { "configuration_type": 2, "component": 14, "inkoop": "8112.00",  "verkoop": "11762.40",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 46, "fields": { "configuration_type": 2, "component": 15, "inkoop": "1129.05",  "verkoop": "1637.12",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 47, "fields": { "configuration_type": 2, "component": 16, "inkoop": "6050.90",  "verkoop": "8773.81",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 48, "fields": { "configuration_type": 2, "component": 17, "inkoop": "0.00",     "verkoop": "0.00",      "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 49, "fields": { "configuration_type": 2, "component": 18, "inkoop": "4839.96",  "verkoop": "7017.94",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 50, "fields": { "configuration_type": 2, "component": 19, "inkoop": "12585.85", "verkoop": "18249.48",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 51, "fields": { "configuration_type": 2, "component": 20, "inkoop": "11795.53", "verkoop": "17103.51",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 52, "fields": { "configuration_type": 2, "component": 21, "inkoop": "13474.96", "verkoop": "19538.69",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 53, "fields": { "configuration_type": 2, "component": 22, "inkoop": "7013.56",  "verkoop": "10169.66",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 54, "fields": { "configuration_type": 2, "component": 23, "inkoop": "288.00",   "verkoop": "417.60",    "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 55, "fields": { "configuration_type": 2, "component": 24, "inkoop": "378.00",   "verkoop": "548.10",    "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 15, "fields": { "configuration_type": 3, "component": 1, "inkoop": "27772.94",  "verkoop": "40270.76",  "created_at": "2026-03-27T08:05:39.946Z", "updated_at": "2026-03-27T08:05:39.946Z" } },
+  { "model": "components.componentprice", "pk": 16, "fields": { "configuration_type": 3, "component": 2, "inkoop": "74972.14",  "verkoop": "108709.60", "created_at": "2026-03-27T08:05:39.954Z", "updated_at": "2026-03-27T08:05:39.954Z" } },
+  { "model": "components.componentprice", "pk": 17, "fields": { "configuration_type": 3, "component": 3, "inkoop": "27322.84",  "verkoop": "39618.12",  "created_at": "2026-03-27T08:05:39.962Z", "updated_at": "2026-03-27T08:05:39.962Z" } },
+  { "model": "components.componentprice", "pk": 18, "fields": { "configuration_type": 3, "component": 4, "inkoop": "45244.15",  "verkoop": "65604.02",  "created_at": "2026-03-27T08:05:39.970Z", "updated_at": "2026-03-27T08:05:39.970Z" } },
+  { "model": "components.componentprice", "pk": 19, "fields": { "configuration_type": 3, "component": 5, "inkoop": "6579.70",   "verkoop": "9540.56",   "created_at": "2026-03-27T08:05:39.979Z", "updated_at": "2026-03-27T08:05:39.979Z" } },
+  { "model": "components.componentprice", "pk": 20, "fields": { "configuration_type": 3, "component": 6, "inkoop": "1425.60",   "verkoop": "2067.12",   "created_at": "2026-03-27T08:05:39.987Z", "updated_at": "2026-03-27T08:05:39.987Z" } },
+  { "model": "components.componentprice", "pk": 21, "fields": { "configuration_type": 3, "component": 7, "inkoop": "21517.10",  "verkoop": "31199.79",  "created_at": "2026-03-27T08:05:39.996Z", "updated_at": "2026-03-27T08:05:39.996Z" } },
+  { "model": "components.componentprice", "pk": 56, "fields": { "configuration_type": 3, "component": 8, "inkoop": "0.00",      "verkoop": "0.00",      "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 57, "fields": { "configuration_type": 3, "component": 10, "inkoop": "1485.31",  "verkoop": "2153.70",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 58, "fields": { "configuration_type": 3, "component": 11, "inkoop": "1950.80",  "verkoop": "2828.66",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 59, "fields": { "configuration_type": 3, "component": 12, "inkoop": "5762.35",  "verkoop": "8354.41",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 60, "fields": { "configuration_type": 3, "component": 13, "inkoop": "10956.40", "verkoop": "15886.78",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 61, "fields": { "configuration_type": 3, "component": 14, "inkoop": "8112.00",  "verkoop": "11762.40",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 62, "fields": { "configuration_type": 3, "component": 15, "inkoop": "1129.05",  "verkoop": "1637.12",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 63, "fields": { "configuration_type": 3, "component": 16, "inkoop": "6050.90",  "verkoop": "8773.81",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 64, "fields": { "configuration_type": 3, "component": 17, "inkoop": "0.00",     "verkoop": "0.00",      "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 65, "fields": { "configuration_type": 3, "component": 18, "inkoop": "6299.16",  "verkoop": "9133.79",   "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 66, "fields": { "configuration_type": 3, "component": 19, "inkoop": "17007.90", "verkoop": "24661.46",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 67, "fields": { "configuration_type": 3, "component": 20, "inkoop": "15939.90", "verkoop": "23112.85",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 68, "fields": { "configuration_type": 3, "component": 21, "inkoop": "18209.40", "verkoop": "26403.63",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 69, "fields": { "configuration_type": 3, "component": 22, "inkoop": "8766.94",  "verkoop": "12712.07",  "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+
+  { "model": "components.componentprice", "pk": 70, "fields": { "configuration_type": 3, "component": 23, "inkoop": "288.00",   "verkoop": "417.60",    "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } },
+  { "model": "components.componentprice", "pk": 71, "fields": { "configuration_type": 3, "component": 24, "inkoop": "378.00",   "verkoop": "548.10",    "created_at": "2026-04-15T12:00:00.000Z", "updated_at": "2026-04-15T12:00:00.000Z" } }
+]

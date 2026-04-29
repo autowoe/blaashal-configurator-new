@@ -158,7 +158,7 @@ export const ProjectDetail = () => {
                             ) : (
                                 <div
                                     className={`grid gap-6 lg:h-full lg:min-h-0 ${showPreview
-                                        ? "grid-cols-1 lg:grid-cols-[minmax(0,1fr)_380px] xl:grid-cols-[minmax(0,1fr)_460px]"
+                                        ? "grid-cols-1 lg:grid-cols-[minmax(0,1fr)_400px] xl:grid-cols-[minmax(0,1fr)_800px] 2xl:grid-cols-[minmax(0,1fr)_1000px]"
                                         : "grid-cols-1"
                                         }`}
                                 >
@@ -198,7 +198,7 @@ export const ProjectDetail = () => {
                 </div>
             </div>
 
-            <div className="shrink-0 border-t border-border bg-background/95 backdrop-blur px-4 py-4 pb-[max(1rem,env(safe-area-inset-bottom))] sticky bottom-0 mt-3">
+            <div className="shrink-0 border-t border-border bg-background/95 backdrop-blur pt-4 sticky bottom-0 mt-3">
                 <div className="mx-auto max-w-7xl flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-5">
                         {isDraft && (

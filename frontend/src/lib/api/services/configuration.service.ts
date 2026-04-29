@@ -32,13 +32,14 @@ export async function getConfigurationComponents(
 export interface CreateProjectConfigurationPayload {
     configuration_type: number
     data: {
-        selected_components: number[]
+        components: { id: number; value: boolean | number }[]
         price_snapshot: Record<
             number,
             {
                 name: string
                 inkoop: string
                 verkoop: string
+                value: boolean | number
             }
         >
     }

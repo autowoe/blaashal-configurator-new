@@ -12,8 +12,10 @@ class ConfigurationTypeViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
 class ComponentPriceViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = ComponentPriceSerializer
-    queryset = ComponentPrice.objects.select_related(
-        "component", "configuration_type"
-    ).order_by("component__order")
+    queryset = (
+        ComponentPrice.objects.select_related("component", "configuration_type")
+        .filter(component__parent__isnull=True)
+        .order_by("component__order")
+    )
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ["configuration_type"]

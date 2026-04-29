@@ -1,20 +1,11 @@
 import { apiFetchJson } from "@/lib/api/client";
-
-export interface AuthUser {
-    id: number;
-    username: string;
-}
+import type { User } from "@/lib/types/user";
 
 export interface LoginResponse {
     detail: string;
-    user: AuthUser;
+    user: User;
 }
-
-export interface MeResponse {
-    id: number;
-    username: string;
-}
-
+export type MeResponse = User;
 export interface MessageResponse {
     detail: string;
 }
