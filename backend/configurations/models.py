@@ -10,7 +10,9 @@ class Configuration(TimeStampedModel):
     )
     configuration_type = models.ForeignKey(
         "components.ConfigurationType",
-        on_delete=models.PROTECT,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
     )
     is_active = models.BooleanField(default=True)
     data = models.JSONField()
