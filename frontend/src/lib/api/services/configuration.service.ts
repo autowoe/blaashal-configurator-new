@@ -64,6 +64,13 @@ export interface ImportComponentsResult {
     errors: string[]
 }
 
+export async function sendQuote(projectId: number, emails: string[]): Promise<void> {
+    await apiFetchJson(`/projects/${projectId}/configurations/send-quote/`, {
+        method: "POST",
+        body: JSON.stringify({ emails }),
+    })
+}
+
 export async function downloadQuotePdf(projectId: number): Promise<void> {
     const response = await apiFetch(`/projects/${projectId}/configurations/quote-pdf/`)
 

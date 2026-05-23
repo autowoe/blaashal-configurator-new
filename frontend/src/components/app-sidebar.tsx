@@ -23,7 +23,11 @@ const data = {
     {
       title: "Projecten",
       url: "/projects",
-    }
+    },
+    {
+      title: "Organisaties",
+      url: "/organizations",
+    },
   ],
 }
 

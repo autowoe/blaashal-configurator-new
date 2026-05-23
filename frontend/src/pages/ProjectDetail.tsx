@@ -13,10 +13,10 @@ import {
     ConfigurationForm,
     type ConfigurationFormRef,
 } from "@/components/forms/configuration-form"
-import { updateProject } from "@/lib/api/services/projects.service"
 import { downloadQuotePdf } from "@/lib/api/services/configuration.service"
 import { toast } from "react-toastify"
-import { RiSendPlaneLine, RiFilePdf2Line } from "@remixicon/react"
+import { RiFilePdf2Line } from "@remixicon/react"
+import { SendQuoteDialog } from "@/components/send-quote-dialog"
 import type { Visualization } from "@/lib/types/visualization"
 import { Configuration3DPreview } from "@/components/3d-configurator"
 import { Switch } from "@/components/ui/switch"
@@ -38,7 +38,7 @@ export const ProjectDetail = () => {
     const formRef = useRef<ConfigurationFormRef>(null)
 
     const [showPreview, setShowPreview] = useState(false)
-    const [isSendingQuote, setIsSendingQuote] = useState(false)
+    const [showSendDialog, setShowSendDialog] = useState(false)
     const [isDownloadingPdf, setIsDownloadingPdf] = useState(false)
     const [isDirty, setIsDirty] = useState(false)
     const [selectedComponentIds, setSelectedComponentIds] = useState<number[]>(
@@ -60,6 +60,10 @@ export const ProjectDetail = () => {
         year: "numeric",
     }).format(new Date(project.created_at))
 
+    const handleQuoteSent = () => {
+        revalidator.revalidate()
+    }
+
     const handleDownloadPdf = async () => {
         try {
             setIsDownloadingPdf(true)
@@ -68,19 +72,6 @@ export const ProjectDetail = () => {
             toast("PDF downloaden mislukt", { type: "error" })
         } finally {
             setIsDownloadingPdf(false)
-        }
-    }
-
-    const handleSendQuote = async () => {
-        try {
-            setIsSendingQuote(true)
-            await updateProject(project.id, { status: "quoted" })
-            toast("Offerte verstuurd", { type: "success" })
-            revalidator.revalidate()
-        } catch {
-            toast("Versturen mislukt", { type: "error" })
-        } finally {
-            setIsSendingQuote(false)
         }
     }
 
@@ -217,13 +208,12 @@ export const ProjectDetail = () => {
                         {isDraft && (
                             <Button
                                 variant="outline"
-                                onClick={handleSendQuote}
-                                disabled={isSendingQuote || isDirty}
+                                onClick={() => setShowSendDialog(true)}
+                                disabled={isDirty}
                                 title={isDirty ? "Sla de configuratie eerst op" : undefined}
                                 className="w-full sm:w-auto"
                             >
-                                <RiSendPlaneLine className="h-4 w-4 mr-2" />
-                                {isSendingQuote ? "Bezig..." : "Verstuur offerte"}
+                                Verstuur offerte
                             </Button>
                         )}
 
@@ -277,6 +267,13 @@ export const ProjectDetail = () => {
                     )}
                 </div>
             </div>
+
+            <SendQuoteDialog
+                open={showSendDialog}
+                onOpenChange={setShowSendDialog}
+                project={project}
+                onSuccess={handleQuoteSent}
+            />
         </div>
     )
 }

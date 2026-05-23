@@ -19,6 +19,8 @@ import { DashboardLoader } from "@/loaders/dashboard-loader";
 import { LoginLoader } from "@/loaders/login-loader";
 import type { ComponentPrice, ConfigurationType, ExistingConfiguration } from "@/lib/types/configuration";
 import { ThemedToastContainer } from "@/components/themed-toast-container";
+import { OrganizationList } from "@/pages/OrganizationList";
+import { OrganizationListLoader } from "@/loaders/organization-list-loader";
 
 const router = createBrowserRouter([
   {
@@ -40,6 +42,13 @@ const router = createBrowserRouter([
         handle: { breadcrumb: "Dashboard" },
         loader: DashboardLoader,
         element: <Dashboard />,
+      },
+      {
+        id: "organizations",
+        path: "/organizations",
+        handle: { breadcrumb: "Organisaties" },
+        loader: OrganizationListLoader,
+        element: <OrganizationList />,
       },
       {
         id: "projects_parent",

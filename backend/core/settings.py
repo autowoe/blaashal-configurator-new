@@ -156,6 +156,19 @@ USE_I18N = True
 
 USE_TZ = True
 
+# Email
+EMAIL_BACKEND = (
+    "django.core.mail.backends.smtp.EmailBackend"
+    if ENVIRONMENT == "production"
+    else "django.core.mail.backends.console.EmailBackend"
+)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "noreply@blaashal.nl")
+
 # Rest
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
