@@ -14,8 +14,9 @@ import {
     type ConfigurationFormRef,
 } from "@/components/forms/configuration-form"
 import { updateProject } from "@/lib/api/services/projects.service"
+import { downloadQuotePdf } from "@/lib/api/services/configuration.service"
 import { toast } from "react-toastify"
-import { RiSendPlaneLine } from "@remixicon/react"
+import { RiSendPlaneLine, RiFilePdf2Line } from "@remixicon/react"
 import type { Visualization } from "@/lib/types/visualization"
 import { Configuration3DPreview } from "@/components/3d-configurator"
 import { Switch } from "@/components/ui/switch"
@@ -38,6 +39,7 @@ export const ProjectDetail = () => {
 
     const [showPreview, setShowPreview] = useState(false)
     const [isSendingQuote, setIsSendingQuote] = useState(false)
+    const [isDownloadingPdf, setIsDownloadingPdf] = useState(false)
     const [isDirty, setIsDirty] = useState(false)
     const [selectedComponentIds, setSelectedComponentIds] = useState<number[]>(
         existingConfig?.data.components?.map((c) => c.id) ?? []
@@ -57,6 +59,17 @@ export const ProjectDetail = () => {
         month: "long",
         year: "numeric",
     }).format(new Date(project.created_at))
+
+    const handleDownloadPdf = async () => {
+        try {
+            setIsDownloadingPdf(true)
+            await downloadQuotePdf(project.id)
+        } catch {
+            toast("PDF downloaden mislukt", { type: "error" })
+        } finally {
+            setIsDownloadingPdf(false)
+        }
+    }
 
     const handleSendQuote = async () => {
         try {
@@ -211,6 +224,18 @@ export const ProjectDetail = () => {
                             >
                                 <RiSendPlaneLine className="h-4 w-4 mr-2" />
                                 {isSendingQuote ? "Bezig..." : "Verstuur offerte"}
+                            </Button>
+                        )}
+
+                        {existingConfig && (
+                            <Button
+                                variant="outline"
+                                onClick={handleDownloadPdf}
+                                disabled={isDownloadingPdf}
+                                className="w-full sm:w-auto"
+                            >
+                                <RiFilePdf2Line className="h-4 w-4 mr-2" />
+                                {isDownloadingPdf ? "Bezig..." : "Download PDF"}
                             </Button>
                         )}
 

@@ -23,7 +23,7 @@ export async function apiFetch(
     headers.set("Accept", "application/json");
 
     const hasBody = options.body != null;
-    if (hasBody && !headers.has("Content-Type")) {
+    if (hasBody && !headers.has("Content-Type") && !(options.body instanceof FormData)) {
         headers.set("Content-Type", "application/json");
     }
 

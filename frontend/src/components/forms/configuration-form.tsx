@@ -26,7 +26,15 @@ import { toast } from "react-toastify"
 
 const configurationSchema = z.object({
     configuration_type: z.number({ error: "Selecteer een type" }),
-    components: z.record(z.string(), z.union([z.boolean(), z.number()])),
+    components: z
+        .record(z.string(), z.union([z.boolean(), z.number()]).optional())
+        .transform((obj) =>
+            Object.fromEntries(
+                Object.entries(obj).filter(
+                    (entry): entry is [string, boolean | number] => entry[1] !== undefined
+                )
+            )
+        ),
 })
 
 type ConfigurationFormValues = z.infer<typeof configurationSchema>
@@ -124,7 +132,7 @@ export const ConfigurationForm = forwardRef<ConfigurationFormRef, ConfigurationF
         const defaultValues = {
             configuration_type: activeTypeId
                 ? Number(activeTypeId)
-                : existingConfig?.configuration_type.id ?? undefined,
+                : existingConfig?.configuration_type?.id ?? undefined,
             components: buildDefaultComponents(existingConfig),
         }
 

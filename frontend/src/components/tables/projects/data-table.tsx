@@ -41,6 +41,7 @@ import { statusConfig } from "@/components/tables/projects/status-config"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { CreateProjectDialog } from "@/components/create-project-dialog"
+import { ImportComponentsDialog } from "@/components/import-components-dialog"
 import type { Project } from "@/lib/types/project"
 import { useState } from "react"
 import { EditProjectDialog } from "@/components/edit-project-dialog"
@@ -167,7 +168,10 @@ export function DataTable<TData, TValue>({
                         </Popover>
                     </div>
                 </div>
-                <CreateProjectDialog />
+                <div className="flex gap-2">
+                    <ImportComponentsDialog />
+                    <CreateProjectDialog />
+                </div>
             </div>
             <div className="overflow-hidden rounded-md border mb-5">
                 <Table>

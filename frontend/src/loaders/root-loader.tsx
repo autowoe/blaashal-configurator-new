@@ -5,6 +5,7 @@ import { getProjects } from "@/lib/api/services/projects.service";
 
 export interface RootLoaderData {
     projects: Awaited<ReturnType<typeof getProjects>>["results"];
+    me: Awaited<ReturnType<typeof getMe>>;
 }
 
 export const RootLoader = async ({ request }: LoaderFunctionArgs) => {
@@ -24,5 +25,6 @@ export const RootLoader = async ({ request }: LoaderFunctionArgs) => {
 
     return {
         projects: data.results,
+        me,
     };
 }
