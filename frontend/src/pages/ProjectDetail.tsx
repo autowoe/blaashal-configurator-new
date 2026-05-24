@@ -1,6 +1,7 @@
 import { useLoaderData, useRevalidator } from "react-router"
 import { useRef, useState } from "react"
-import type { Project } from "@/lib/types/project"
+import type { Project, ProjectImage } from "@/lib/types/project"
+import { Sheet, SheetContent } from "@/components/ui/sheet"
 import type {
     ConfigurationType,
     ComponentPrice,
@@ -15,16 +16,20 @@ import {
 } from "@/components/forms/configuration-form"
 import { downloadQuotePdf } from "@/lib/api/services/configuration.service"
 import { toast } from "react-toastify"
-import { RiFilePdf2Line } from "@remixicon/react"
+import { RiFilePdf2Line, RiImageLine, RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine } from "@remixicon/react"
 import { SendQuoteDialog } from "@/components/send-quote-dialog"
 import type { Visualization } from "@/lib/types/visualization"
 import { Configuration3DPreview } from "@/components/3d-configurator"
+import { ProjectGallery } from "@/components/project-gallery"
 import { Switch } from "@/components/ui/switch"
 
 const LOCKED_STATUSES = ["quoted", "accepted", "done", "denied"]
 
+// Breedte van het galerij-paneel (moet overeenkomen met de SheetContent className)
+const GALLERY_WIDTH = "448px"
+
 export const ProjectDetail = () => {
-    const { project, types, components, visualizations, existingConfig, activeTypeId } =
+    const { project, types, components, visualizations, existingConfig, activeTypeId, projectImages } =
         useLoaderData() as {
             project: Project
             types: ConfigurationType[]
@@ -32,18 +37,22 @@ export const ProjectDetail = () => {
             visualizations: Visualization[]
             existingConfig: ExistingConfiguration | null
             activeTypeId: string | null
+            projectImages: ProjectImage[]
         }
 
     const revalidator = useRevalidator()
     const formRef = useRef<ConfigurationFormRef>(null)
 
     const [showPreview, setShowPreview] = useState(false)
+    const [showGallery, setShowGallery] = useState(false)
+    const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
     const [showSendDialog, setShowSendDialog] = useState(false)
     const [isDownloadingPdf, setIsDownloadingPdf] = useState(false)
     const [isDirty, setIsDirty] = useState(false)
     const [selectedComponentIds, setSelectedComponentIds] = useState<number[]>(
         existingConfig?.data.components?.map((c) => c.id) ?? []
     )
+    const [images, setImages] = useState<ProjectImage[]>(projectImages)
 
     const isLocked = LOCKED_STATUSES.includes(project.status)
     const isDraft = project.status === "draft"
@@ -59,6 +68,23 @@ export const ProjectDetail = () => {
         month: "long",
         year: "numeric",
     }).format(new Date(project.created_at))
+
+    function handleCloseGallery() {
+        setShowGallery(false)
+        setSelectedImageIndex(null)
+    }
+
+    function goPrevImage() {
+        if (selectedImageIndex === null || images.length === 0) return
+        setSelectedImageIndex((selectedImageIndex - 1 + images.length) % images.length)
+    }
+
+    function goNextImage() {
+        if (selectedImageIndex === null || images.length === 0) return
+        setSelectedImageIndex((selectedImageIndex + 1) % images.length)
+    }
+
+    const selectedImage = selectedImageIndex !== null ? images[selectedImageIndex] : null
 
     const handleQuoteSent = () => {
         revalidator.revalidate()
@@ -86,17 +112,14 @@ export const ProjectDetail = () => {
                                     <p className="text-xs font-medium tracking-widest uppercase text-muted-foreground">
                                         Project configuratie
                                     </p>
-
                                     <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
                                         {project.name}
                                     </h1>
-
                                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
                                         <span>{project.organization.name}</span>
                                         <span className="hidden sm:inline text-border">·</span>
                                         <span>{createdAt}</span>
                                     </div>
-
                                     <div className="pt-1 sm:hidden">
                                         <Badge
                                             variant={statusConfig[project.status].variant}
@@ -106,7 +129,6 @@ export const ProjectDetail = () => {
                                         </Badge>
                                     </div>
                                 </div>
-
                                 <div className="hidden sm:block">
                                     <Badge
                                         variant={statusConfig[project.status].variant}
@@ -129,28 +151,23 @@ export const ProjectDetail = () => {
                                                     Vastgelegde prijzen
                                                 </span>
                                             </div>
-
                                             {existingConfig && (
                                                 <Badge>{existingConfig.configuration_type.name}</Badge>
                                             )}
                                         </div>
-
                                         <div className="divide-y divide-border lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
                                             {Object.values(snapshot).map((item) => (
                                                 <div
                                                     key={item.name}
                                                     className="flex items-center justify-between gap-4 px-4 py-3.5 sm:px-5"
                                                 >
-                                                    <span className="min-w-0 text-sm text-foreground/90">
-                                                        {item.name}
-                                                    </span>
+                                                    <span className="min-w-0 text-sm text-foreground/90">{item.name}</span>
                                                     <span className="shrink-0 text-sm tabular-nums font-medium">
                                                         € {parseFloat(item.verkoop).toLocaleString("nl-NL")}
                                                     </span>
                                                 </div>
                                             ))}
                                         </div>
-
                                         <div className="px-4 py-4 sm:px-5 border-t border-border bg-muted/30 flex items-center justify-between shrink-0">
                                             <span className="text-sm font-medium">Totaal</span>
                                             <span className="text-lg font-semibold tabular-nums">
@@ -166,13 +183,7 @@ export const ProjectDetail = () => {
                                         : "grid-cols-1"
                                         }`}
                                 >
-                                    <div
-                                        className={
-                                            showPreview
-                                                ? "min-w-0 lg:h-[full] lg:min-h-0"
-                                                : "mx-auto w-full max-w-2xl min-w-0 lg:h-full lg:min-h-0"
-                                        }
-                                    >
+                                    <div className={showPreview ? "min-w-0 lg:h-[full] lg:min-h-0" : "mx-auto w-full max-w-2xl min-w-0 lg:h-full lg:min-h-0"}>
                                         <ConfigurationForm
                                             ref={formRef}
                                             project={project}
@@ -184,7 +195,6 @@ export const ProjectDetail = () => {
                                             onSelectedComponentsChange={setSelectedComponentIds}
                                         />
                                     </div>
-
                                     {showPreview && (
                                         <div className="min-w-0 lg:h-full lg:min-h-0">
                                             <Configuration3DPreview
@@ -229,6 +239,15 @@ export const ProjectDetail = () => {
                             </Button>
                         )}
 
+                        <Button
+                            variant={showGallery ? "default" : "outline"}
+                            onClick={() => showGallery ? handleCloseGallery() : setShowGallery(true)}
+                            className="w-full sm:w-auto"
+                        >
+                            <RiImageLine className="h-4 w-4 mr-2" />
+                            Foto's{images.length > 0 ? ` (${images.length})` : ""}
+                        </Button>
+
                         {!isLocked && (
                             <div className="flex items-center space-x-2">
                                 <Switch
@@ -236,10 +255,7 @@ export const ProjectDetail = () => {
                                     checked={showPreview}
                                     onCheckedChange={setShowPreview}
                                 />
-                                <label
-                                    htmlFor="preview-toggle"
-                                    className="text-sm font-medium leading-none"
-                                >
+                                <label htmlFor="preview-toggle" className="text-sm font-medium leading-none">
                                     Preview tonen
                                 </label>
                             </div>
@@ -274,6 +290,71 @@ export const ProjectDetail = () => {
                 project={project}
                 onSuccess={handleQuoteSent}
             />
+
+            {/* Galerij-sheet rechts, zonder backdrop zodat de viewer links zichtbaar is */}
+            <Sheet open={showGallery} onOpenChange={(open) => { if (!open) handleCloseGallery() }}>
+                <SheetContent
+                    side="right"
+                    className="w-full sm:max-w-[448px] p-0 flex flex-col"
+                    showCloseButton={false}
+                    showOverlay={false}
+                >
+                    <ProjectGallery
+                        projectId={project.id}
+                        images={images}
+                        onImagesChange={setImages}
+                        selectedIndex={selectedImageIndex}
+                        onSelect={setSelectedImageIndex}
+                        onClose={handleCloseGallery}
+                    />
+                </SheetContent>
+            </Sheet>
+
+            {/* Beeldviewer links van de sheet — alleen op sm+ waar ruimte is */}
+            {showGallery && selectedImage && (
+                <div
+                    className="fixed inset-y-0 left-0 hidden sm:flex items-center justify-center bg-background/95 backdrop-blur-sm z-40"
+                    style={{ right: GALLERY_WIDTH }}
+                >
+                    <div className="relative w-full h-full flex items-center justify-center p-10">
+                        <img
+                            src={selectedImage.image_url}
+                            alt={selectedImage.name || "Foto"}
+                            className="max-h-full max-w-full object-contain rounded-xl shadow-2xl"
+                        />
+
+                        <button
+                            className="absolute top-4 right-4 flex h-9 w-9 items-center justify-center rounded-full bg-foreground/10 hover:bg-foreground/20 text-foreground transition-colors"
+                            onClick={() => setSelectedImageIndex(null)}
+                            aria-label="Sluiten"
+                        >
+                            <RiCloseLine className="h-4 w-4" />
+                        </button>
+
+                        {images.length > 1 && (
+                            <>
+                                <button
+                                    className="absolute left-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-foreground/10 hover:bg-foreground/20 text-foreground transition-colors"
+                                    onClick={goPrevImage}
+                                    aria-label="Vorige"
+                                >
+                                    <RiArrowLeftSLine className="h-6 w-6" />
+                                </button>
+                                <button
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-foreground/10 hover:bg-foreground/20 text-foreground transition-colors"
+                                    onClick={goNextImage}
+                                    aria-label="Volgende"
+                                >
+                                    <RiArrowRightSLine className="h-6 w-6" />
+                                </button>
+                                <span className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-foreground/10 px-3 py-1 text-xs text-foreground/60 tabular-nums">
+                                    {selectedImageIndex + 1} / {images.length}
+                                </span>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     )
 }

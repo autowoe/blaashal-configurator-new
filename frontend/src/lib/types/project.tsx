@@ -12,3 +12,12 @@ export type Project = {
     created_at: string
 }
 export type PaginatedProjects = PaginatedResponse<Project>
+
+export type ProjectImage = {
+    id: number
+    project: number
+    image: string
+    image_url: string
+    name: string
+    created_at: string
+}

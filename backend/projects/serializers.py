@@ -4,7 +4,7 @@ from rest_framework import serializers
 from organizations.serializers import OrganizationSerializer
 from organizations.models import Organization
 
-from projects.models import Project, Status
+from projects.models import Project, ProjectImage, Status
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -42,3 +42,19 @@ class ProjectUpdateSerializer(serializers.ModelSerializer):
         model = Project
         fields = ["id", "name", "organization", "status", "created_at"]
         read_only_fields = ["id", "created_at"]
+
+
+class ProjectImageSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField()
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ProjectImage
+        fields = ["id", "project", "image", "image_url", "name", "created_at"]
+        read_only_fields = ["id", "project", "created_at"]
+
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+        if request:
+            return request.build_absolute_uri(obj.image.url)
+        return obj.image.url

@@ -2,6 +2,7 @@ import type { LoaderFunctionArgs } from "react-router";
 import {
     getProject,
     getProjectConfigurations,
+    getProjectImages,
 } from "@/lib/api/services/projects.service";
 import {
     getConfigurationTypes,
@@ -18,10 +19,11 @@ export const ProjectDetailLoader = async ({ params, request }: LoaderFunctionArg
     const url = new URL(request.url);
     const configurationType = url.searchParams.get("configuration_type");
 
-    const [project, types, configData] = await Promise.all([
+    const [project, types, configData, projectImages] = await Promise.all([
         getProject(projectId),
         getConfigurationTypes(),
         getProjectConfigurations(projectId, { isActive: true }),
+        getProjectImages(projectId),
     ]);
 
     const existingConfig = configData[0] ?? null;
@@ -46,5 +48,6 @@ export const ProjectDetailLoader = async ({ params, request }: LoaderFunctionArg
         visualizations,
         existingConfig,
         activeTypeId: typeToFetch,
+        projectImages,
     };
 };

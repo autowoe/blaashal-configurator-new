@@ -1,6 +1,6 @@
-import type { PaginatedProjects, Project } from "@/lib/types/project";
+import type { PaginatedProjects, Project, ProjectImage } from "@/lib/types/project";
 import type { ExistingConfiguration } from "@/lib/types/configuration";
-import { apiFetchJson } from "@/lib/api/client";
+import { apiFetch, apiFetchJson } from "@/lib/api/client";
 
 export interface GetProjectsParams {
     page?: number;
@@ -81,4 +81,21 @@ export async function updateProject(projectId: string | number, payload: UpdateP
 
 export async function deleteProject(projectId: string | number): Promise<void> {
     await apiFetchJson<void>(`/projects/${projectId}`, { method: "DELETE" });
+}
+
+export async function getProjectImages(projectId: string | number): Promise<ProjectImage[]> {
+    return apiFetchJson<ProjectImage[]>(`/projects/${projectId}/images/`);
+}
+
+export async function uploadProjectImage(projectId: string | number, file: File, name?: string): Promise<ProjectImage> {
+    const formData = new FormData();
+    formData.append("image", file);
+    if (name) formData.append("name", name);
+    const response = await apiFetch(`/projects/${projectId}/images/`, { method: "POST", body: formData });
+    if (!response.ok) throw new Error("Upload mislukt");
+    return response.json() as Promise<ProjectImage>;
+}
+
+export async function deleteProjectImage(projectId: string | number, imageId: number): Promise<void> {
+    await apiFetch(`/projects/${projectId}/images/${imageId}/`, { method: "DELETE" });
 }
