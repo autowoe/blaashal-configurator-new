@@ -19,13 +19,12 @@ import { toast } from "react-toastify"
 import { RiFilePdf2Line, RiImageLine, RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine } from "@remixicon/react"
 import { SendQuoteDialog } from "@/components/send-quote-dialog"
 import type { Visualization } from "@/lib/types/visualization"
-import { Configuration3DPreview } from "@/components/3d-configurator"
+import { Configuration3DPreview, type Configuration3DPreviewRef } from "@/components/3d-configurator"
 import { ProjectGallery } from "@/components/project-gallery"
 import { Switch } from "@/components/ui/switch"
 
 const LOCKED_STATUSES = ["quoted", "accepted", "done", "denied"]
 
-// Breedte van het galerij-paneel (moet overeenkomen met de SheetContent className)
 const GALLERY_WIDTH = "383px"
 
 export const ProjectDetail = () => {
@@ -42,6 +41,7 @@ export const ProjectDetail = () => {
 
     const revalidator = useRevalidator()
     const formRef = useRef<ConfigurationFormRef>(null)
+    const previewRef = useRef<Configuration3DPreviewRef>(null)
 
     const [showPreview, setShowPreview] = useState(false)
     const [showGallery, setShowGallery] = useState(false)
@@ -99,6 +99,10 @@ export const ProjectDetail = () => {
         } finally {
             setIsDownloadingPdf(false)
         }
+    }
+
+    function captureModelScreenshot(): string | null {
+        return previewRef.current?.captureScreenshot() ?? null
     }
 
     return (
@@ -198,6 +202,7 @@ export const ProjectDetail = () => {
                                     {showPreview && (
                                         <div className="min-w-0 lg:h-full lg:min-h-0">
                                             <Configuration3DPreview
+                                                ref={previewRef}
                                                 visualizations={visualizations}
                                                 selectedComponentIds={selectedComponentIds}
                                             />
@@ -291,7 +296,6 @@ export const ProjectDetail = () => {
                 onSuccess={handleQuoteSent}
             />
 
-            {/* Galerij-sheet rechts, zonder backdrop zodat de viewer links zichtbaar is */}
             <Sheet open={showGallery} onOpenChange={(open) => { if (!open) handleCloseGallery() }}>
                 <SheetContent
                     side="right"
@@ -306,11 +310,11 @@ export const ProjectDetail = () => {
                         selectedIndex={selectedImageIndex}
                         onSelect={setSelectedImageIndex}
                         onClose={handleCloseGallery}
+                        onCaptureModelScreenshot={captureModelScreenshot}
                     />
                 </SheetContent>
             </Sheet>
 
-            {/* Beeldviewer links van de sheet — alleen op sm+ waar ruimte is */}
             {showGallery && selectedImage && (
                 <div
                     className="fixed inset-y-0 left-0 hidden sm:flex items-center justify-center bg-background/95 backdrop-blur-sm z-40"

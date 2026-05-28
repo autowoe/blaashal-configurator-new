@@ -99,3 +99,24 @@ export async function uploadProjectImage(projectId: string | number, file: File,
 export async function deleteProjectImage(projectId: string | number, imageId: number): Promise<void> {
     await apiFetch(`/projects/${projectId}/images/${imageId}/`, { method: "DELETE" });
 }
+
+export async function generateAiPreview(
+    projectId: string | number,
+    environmentImageId: number,
+    modelScreenshot?: string | null,
+): Promise<{ request_id: string }> {
+    return apiFetchJson(`/projects/${projectId}/generate-preview/`, {
+        method: "POST",
+        body: JSON.stringify({
+            environment_image_id: environmentImageId,
+            model_screenshot: modelScreenshot ?? null,
+        }),
+    });
+}
+
+export async function getAiPreviewStatus(
+    projectId: string | number,
+    requestId: string,
+): Promise<{ status: string; image?: ProjectImage }> {
+    return apiFetchJson(`/projects/${projectId}/preview-status/${requestId}/`);
+}

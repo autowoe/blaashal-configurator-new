@@ -1,5 +1,6 @@
-import { Canvas } from "@react-three/fiber"
+import { Canvas, useThree } from "@react-three/fiber"
 import { OrbitControls, Grid, PerspectiveCamera } from "@react-three/drei"
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react"
 import type { Visualization } from "@/lib/types/visualization"
 import { Badge } from "./ui/badge"
 
@@ -7,6 +8,10 @@ type Props = {
     visualizations: Visualization[]
     selectedComponentIds: number[]
     className?: string
+}
+
+export type Configuration3DPreviewRef = {
+    captureScreenshot: () => string | null
 }
 
 function toNumber(value: string | number | null | undefined, fallback = 0) {
@@ -104,6 +109,14 @@ function VisualizationObject({ item }: { item: Visualization }) {
     }
 }
 
+function GlCapture({ glRef }: { glRef: React.MutableRefObject<ReturnType<typeof useThree>["gl"] | null> }) {
+    const { gl } = useThree()
+    useEffect(() => {
+        glRef.current = gl
+    }, [gl, glRef])
+    return null
+}
+
 function Scene({ visualizations }: { visualizations: Visualization[] }) {
     return (
         <>
@@ -134,45 +147,53 @@ function Scene({ visualizations }: { visualizations: Visualization[] }) {
     )
 }
 
-export function Configuration3DPreview({
-    visualizations,
-    selectedComponentIds,
-    className,
-}: Props) {
-    const visibleVisualizations = visualizations.filter(
-        (item) => item.visible && selectedComponentIds.includes(item.component)
-    )
+export const Configuration3DPreview = forwardRef<Configuration3DPreviewRef, Props>(
+    function Configuration3DPreview({ visualizations, selectedComponentIds, className }, ref) {
+        const glRef = useRef<ReturnType<typeof useThree>["gl"] | null>(null)
 
-    return (
-        <div
-            className={[
-                "rounded-xl border border-border bg-card text-card-foreground overflow-hidden flex flex-col",
-                "h-[260px] sm:h-[320px] lg:h-full lg:min-h-0",
-                className,
-            ]
-                .filter(Boolean)
-                .join(" ")}
-        >
-            <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-4 sm:px-5 shrink-0">
-                <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
-                        <span className="text-xs font-medium tracking-wider uppercase text-muted-foreground">
-                            3D visualisatie
-                        </span>
+        useImperativeHandle(ref, () => ({
+            captureScreenshot: () => {
+                if (!glRef.current) return null
+                return glRef.current.domElement.toDataURL("image/jpeg", 0.92)
+            },
+        }))
+
+        const visibleVisualizations = visualizations.filter(
+            (item) => item.visible && selectedComponentIds.includes(item.component)
+        )
+
+        return (
+            <div
+                className={[
+                    "rounded-xl border border-border bg-card text-card-foreground overflow-hidden flex flex-col",
+                    "h-[260px] sm:h-[320px] lg:h-full lg:min-h-0",
+                    className,
+                ]
+                    .filter(Boolean)
+                    .join(" ")}
+            >
+                <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-4 sm:px-5 shrink-0">
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                            <div className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
+                            <span className="text-xs font-medium tracking-wider uppercase text-muted-foreground">
+                                3D visualisatie
+                            </span>
+                        </div>
                     </div>
+
+                    <Badge variant="destructive" className="shrink-0">
+                        In ontwikkeling
+                    </Badge>
                 </div>
 
-                <Badge variant="destructive" className="shrink-0">
-                    In ontwikkeling
-                </Badge>
+                <div className="flex-1 min-h-0 w-full bg-muted/20">
+                    <Canvas shadows gl={{ preserveDrawingBuffer: true }} className="h-full w-full">
+                        <GlCapture glRef={glRef} />
+                        <Scene visualizations={visibleVisualizations} />
+                    </Canvas>
+                </div>
             </div>
-
-            <div className="flex-1 min-h-0 w-full bg-muted/20">
-                <Canvas shadows className="h-full w-full">
-                    <Scene visualizations={visibleVisualizations} />
-                </Canvas>
-            </div>
-        </div>
-    )
-}
+        )
+    }
+)
