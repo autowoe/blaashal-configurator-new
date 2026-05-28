@@ -26,7 +26,7 @@ import { Switch } from "@/components/ui/switch"
 const LOCKED_STATUSES = ["quoted", "accepted", "done", "denied"]
 
 // Breedte van het galerij-paneel (moet overeenkomen met de SheetContent className)
-const GALLERY_WIDTH = "448px"
+const GALLERY_WIDTH = "383px"
 
 export const ProjectDetail = () => {
     const { project, types, components, visualizations, existingConfig, activeTypeId, projectImages } =
