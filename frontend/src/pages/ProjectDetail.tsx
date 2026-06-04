@@ -101,10 +101,6 @@ export const ProjectDetail = () => {
         }
     }
 
-    function captureModelScreenshot(): string | null {
-        return previewRef.current?.captureScreenshot() ?? null
-    }
-
     return (
         <div className="h-full bg-background text-foreground flex flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto">
@@ -310,7 +306,6 @@ export const ProjectDetail = () => {
                         selectedIndex={selectedImageIndex}
                         onSelect={setSelectedImageIndex}
                         onClose={handleCloseGallery}
-                        onCaptureModelScreenshot={captureModelScreenshot}
                     />
                 </SheetContent>
             </Sheet>

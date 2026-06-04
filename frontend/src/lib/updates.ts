@@ -10,6 +10,13 @@ export interface AppUpdate {
 
 export const updates: AppUpdate[] = [
     {
+        id: "2026-06-04-ai-preview",
+        date: "2026-06-04",
+        title: "Verbeterde AI-preview met referentiebeelden",
+        description: "De AI-preview gebruikt nu GPT Image 2 voor realistischere resultaten. Markeer foto's van bestaande blaashallen als referentie zodat het model de stijl overneemt. De koepel wordt geplaatst binnen het getekende masker en omliggende elementen blijven ongewijzigd.",
+        type: "feature",
+    },
+    {
         id: "2026-04-29-subcomponenten",
         date: "2026-04-29",
         title: "Subcomponenten en invoertypes",

@@ -103,13 +103,15 @@ export async function deleteProjectImage(projectId: string | number, imageId: nu
 export async function generateAiPreview(
     projectId: string | number,
     environmentImageId: number,
-    modelScreenshot?: string | null,
+    mask: string,
+    referenceImageIds?: number[],
 ): Promise<{ request_id: string }> {
     return apiFetchJson(`/projects/${projectId}/generate-preview/`, {
         method: "POST",
         body: JSON.stringify({
             environment_image_id: environmentImageId,
-            model_screenshot: modelScreenshot ?? null,
+            mask,
+            reference_image_ids: referenceImageIds ?? [],
         }),
     });
 }

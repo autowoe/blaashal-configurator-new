@@ -1,7 +1,12 @@
+import base64
+import io
 import mimetypes
-import re
+import os
+import urllib.request
 
 import fal_client
+from PIL import Image as PILImage, ImageFilter
+from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -23,24 +28,67 @@ from projects.pagination import ProjectPagination
 FAL_APP_ID = "openai/gpt-image-2/edit"
 
 
-def build_generation_prompt(config_type_name=None):
-    # Parse "Xb sport" format, e.g. "3b tennis" → 3 tennis courts
-    size_desc = "covering the sports courts"
-    if config_type_name:
-        match = re.match(r"(\d+)b\s+(\w+)", config_type_name, re.IGNORECASE)
-        if match:
-            num_fields = int(match.group(1))
-            sport = match.group(2).lower()
-            size_desc = f"sized to cover exactly {num_fields} {sport} {'court' if num_fields == 1 else 'courts'} side by side"
+def _composite_with_dilated_mask(
+    original_bytes: bytes, generated_bytes: bytes, raw_mask_bytes: bytes
+) -> bytes:
+    """
+    Paste the generated image over the original using a dilated+blurred mask.
+    Dilation preserves the dome roof that naturally extends beyond the field boundary,
+    while restoring original pixels everywhere else (removes AI changes to hedges, fields, etc).
+    """
+    original = PILImage.open(io.BytesIO(original_bytes)).convert("RGB")
+    generated = PILImage.open(io.BytesIO(generated_bytes)).convert("RGB")
+    mask = PILImage.open(io.BytesIO(raw_mask_bytes)).convert("L")
+
+    if generated.size != original.size:
+        generated = generated.resize(original.size, PILImage.LANCZOS)
+    if mask.size != original.size:
+        mask = mask.resize(original.size, PILImage.LANCZOS)
+
+    # Expand the mask ~8% of image width so the dome roof overflow is included
+    expand = max(40, original.size[0] // 12)
+    dilated = mask.filter(ImageFilter.MaxFilter(size=expand * 2 + 1))
+    composite_mask = dilated.filter(ImageFilter.GaussianBlur(radius=expand // 3))
+
+    # composite(a, b, mask): white → a (generated), black → b (original)
+    result = PILImage.composite(generated, original, composite_mask)
+
+    out = io.BytesIO()
+    result.save(out, format="JPEG", quality=95)
+    return out.getvalue()
+
+
+def _mask_location_hint(mask_bytes: bytes) -> str:
+    """Return a rough spatial description of the masked area for the prompt."""
+    img = PILImage.open(io.BytesIO(mask_bytes)).convert("L")
+    w, h = img.size
+    pixels = list(img.getdata())
+    white = [(i % w, i // w) for i, p in enumerate(pixels) if p > 128]
+    if not white:
+        return ""
+    cx = sum(x for x, _ in white) / len(white) / w
+    cy = sum(y for _, y in white) / len(white) / h
+    v = "upper" if cy < 0.4 else "lower" if cy > 0.6 else "middle"
+    h_pos = "left" if cx < 0.4 else "right" if cx > 0.6 else "center"
+    return f" The field is in the {v}-{h_pos} part of the image."
+
+
+def build_generation_prompt(has_references=False, location_hint=""):
+    ref_hint = (
+        " Match the dome's exact style, color and shape to the reference dome images provided."
+        if has_references
+        else ""
+    )
 
     return (
-        f"Add a large inflatable sports dome structure over the sports area in this image, {size_desc}. "
-        "Air-supported architecture with a smooth tensioned membrane exterior, "
-        "reinforced base skirt around the perimeter, modular inflatable sports hall, "
-        "realistic construction details, temporary yet professional athletic facility, "
-        "modern engineering, photorealistic, realistic materials and structural proportions, "
-        "soft natural lighting matching the scene. "
-        "Do not alter any other part of the image — keep fences, trees, buildings, and ground completely unchanged."
+        f"Place a large white inflatable air-supported sports dome (blaashal) "
+        f"over the sports field in the masked/transparent area of this image.{location_hint}{ref_hint} "
+        "The dome must fill the entire masked area completely — size it to match the full extent of the transparent region. "
+        "Do not modify anything outside the masked area. "
+        "The dome has a smooth white PVC membrane roof and a blue base band at the bottom. "
+        "Keep all surroundings (fences, trees, buildings, light poles, sky) exactly as they are. "
+        "Match the existing lighting, shadows, and perspective. "
+        "The result must look photorealistic, as if the dome was actually built here."
     )
 
 
@@ -91,40 +139,46 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def generate_preview(self, request, **_kwargs):
         project = self.get_object()
         image_id = request.data.get("environment_image_id")
+        mask_data_url = request.data.get("mask")
+        reference_image_ids = request.data.get("reference_image_ids", [])
+
         if not image_id:
             return Response(
                 {"detail": "environment_image_id required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        if not mask_data_url:
+            return Response(
+                {"detail": "mask required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         env_image = get_object_or_404(ProjectImage, id=image_id, project=project)
-
         with env_image.image.open("rb") as f:
             image_bytes = f.read()
-
         file_name = env_image.image.name.split("/")[-1]
         mime_type = mimetypes.guess_type(file_name)[0] or "image/jpeg"
-        fal_image_url = fal_client.encode(image_bytes, mime_type)
 
-        config = (
-            project.price_configurations.filter(is_active=True)
-            .select_related("configuration_type")
-            .first()
-        )
-        config_type_name = (
-            config.configuration_type.name
-            if config and config.configuration_type
-            else None
-        )
-        prompt = build_generation_prompt(config_type_name)
+        _, b64data = mask_data_url.split(",", 1)
+        raw_mask_bytes = base64.b64decode(b64data)
+        location_hint = _mask_location_hint(raw_mask_bytes)
 
         handle = fal_client.submit(
             FAL_APP_ID,
             arguments={
-                "image_urls": [fal_image_url],
-                "prompt": prompt,
+                "image_urls": [fal_client.encode(image_bytes, mime_type)],
+                "mask_url": fal_client.encode(raw_mask_bytes, "image/png"),
+                "prompt": build_generation_prompt(location_hint=location_hint),
                 "quality": "high",
+                "output_format": "jpeg",
+                "openai_api_key": os.environ["OPENAI_API_KEY"],
             },
+        )
+
+        cache.set(
+            f"ai_composite_{handle.request_id}",
+            {"image_bytes": image_bytes, "mask_bytes": raw_mask_bytes},
+            timeout=3600,
         )
 
         return Response(
@@ -145,10 +199,17 @@ class ProjectViewSet(viewsets.ModelViewSet):
         result = fal_client.result(FAL_APP_ID, request_id)
         generated_url = result["images"][0]["url"]
 
-        import urllib.request
-
         with urllib.request.urlopen(generated_url) as img_resp:
             img_bytes = img_resp.read()
+
+        composite_meta = cache.get(f"ai_composite_{request_id}")
+        if composite_meta:
+            img_bytes = _composite_with_dilated_mask(
+                composite_meta["image_bytes"],
+                img_bytes,
+                composite_meta["mask_bytes"],
+            )
+            cache.delete(f"ai_composite_{request_id}")
 
         image_file = ContentFile(img_bytes, name=f"ai_preview_{request_id[:8]}.jpg")
         project_image = ProjectImage(project=project, name="AI Preview")
