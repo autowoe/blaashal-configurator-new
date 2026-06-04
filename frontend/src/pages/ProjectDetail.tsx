@@ -347,7 +347,7 @@ export const ProjectDetail = () => {
                                     <RiArrowRightSLine className="h-6 w-6" />
                                 </button>
                                 <span className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full bg-foreground/10 px-3 py-1 text-xs text-foreground/60 tabular-nums">
-                                    {selectedImageIndex + 1} / {images.length}
+                                    {(selectedImageIndex ?? 0) + 1} / {images.length}
                                 </span>
                             </>
                         )}

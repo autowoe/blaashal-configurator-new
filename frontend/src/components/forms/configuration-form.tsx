@@ -37,6 +37,7 @@ const configurationSchema = z.object({
         ),
 })
 
+type ConfigurationFormInput = z.input<typeof configurationSchema>
 type ConfigurationFormValues = z.infer<typeof configurationSchema>
 
 export interface ConfigurationFormRef {
@@ -69,7 +70,7 @@ function collectAllPrices(prices: ComponentPrice[]): ComponentPrice[] {
 
 function getActiveIds(
     allPrices: ComponentPrice[],
-    values: Record<string, boolean | number>
+    values: Record<string, boolean | number | undefined>
 ): number[] {
     return allPrices
         .filter((p) => {
@@ -92,7 +93,7 @@ function calcLinePrice(price: ComponentPrice, val: boolean | number | undefined)
 
 function calcTotal(
     allPrices: ComponentPrice[],
-    values: Record<string, boolean | number>
+    values: Record<string, boolean | number | undefined>
 ): number {
     return allPrices.reduce((sum, p) => sum + calcLinePrice(p, values[p.component.id]), 0)
 }
@@ -136,7 +137,7 @@ export const ConfigurationForm = forwardRef<ConfigurationFormRef, ConfigurationF
             components: buildDefaultComponents(existingConfig),
         }
 
-        const form = useForm<ConfigurationFormValues>({
+        const form = useForm<ConfigurationFormInput, any, ConfigurationFormValues>({
             resolver: zodResolver(configurationSchema),
             defaultValues,
         })
@@ -280,8 +281,8 @@ ConfigurationForm.displayName = "ConfigurationForm"
 
 interface RowProps {
     price: ComponentPrice
-    form: ReturnType<typeof useForm<ConfigurationFormValues>>
-    watchedComponents: Record<string, boolean | number>
+    form: ReturnType<typeof useForm<ConfigurationFormInput, any, ConfigurationFormValues>>
+    watchedComponents: Record<string, boolean | number | undefined>
 }
 
 function ParentRow({ price, form, watchedComponents }: RowProps) {
@@ -344,8 +345,8 @@ function ParentRow({ price, form, watchedComponents }: RowProps) {
 
 interface ChildrenListProps {
     prices: ComponentPrice[]
-    form: ReturnType<typeof useForm<ConfigurationFormValues>>
-    watchedComponents: Record<string, boolean | number>
+    form: ReturnType<typeof useForm<ConfigurationFormInput, any, ConfigurationFormValues>>
+    watchedComponents: Record<string, boolean | number | undefined>
 }
 
 function ChildrenList({ prices, form, watchedComponents }: ChildrenListProps) {
@@ -472,7 +473,7 @@ function ChildInputRow({ price, form, watchedComponents }: RowProps) {
 interface ChildGroupRowProps {
     groupKey: string
     items: ComponentPrice[]
-    watchedComponents: Record<string, boolean | number>
+    watchedComponents: Record<string, boolean | number | undefined>
     onChange: (id: string) => void
 }
 

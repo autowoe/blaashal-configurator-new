@@ -1,6 +1,7 @@
 import { Canvas, useThree } from "@react-three/fiber"
 import { OrbitControls, Grid, PerspectiveCamera } from "@react-three/drei"
 import { forwardRef, useEffect, useImperativeHandle, useRef } from "react"
+import type { WebGLRenderer } from "three"
 import type { Visualization } from "@/lib/types/visualization"
 import { Badge } from "./ui/badge"
 
@@ -109,7 +110,7 @@ function VisualizationObject({ item }: { item: Visualization }) {
     }
 }
 
-function GlCapture({ glRef }: { glRef: React.MutableRefObject<ReturnType<typeof useThree>["gl"] | null> }) {
+function GlCapture({ glRef }: { glRef: React.MutableRefObject<WebGLRenderer | null> }) {
     const { gl } = useThree()
     useEffect(() => {
         glRef.current = gl
@@ -149,7 +150,7 @@ function Scene({ visualizations }: { visualizations: Visualization[] }) {
 
 export const Configuration3DPreview = forwardRef<Configuration3DPreviewRef, Props>(
     function Configuration3DPreview({ visualizations, selectedComponentIds, className }, ref) {
-        const glRef = useRef<ReturnType<typeof useThree>["gl"] | null>(null)
+        const glRef = useRef<WebGLRenderer | null>(null)
 
         useImperativeHandle(ref, () => ({
             captureScreenshot: () => {

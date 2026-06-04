@@ -7,7 +7,6 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { RiSendPlaneLine, RiCloseLine, RiMailLine } from "@remixicon/react"
 import { sendQuote } from "@/lib/api/services/configuration.service"
 import { toast } from "react-toastify"

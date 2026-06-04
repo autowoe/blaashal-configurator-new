@@ -57,11 +57,9 @@ export function ImportComponentsDialog() {
 
     return (
         <Dialog open={open} onOpenChange={handleClose}>
-            <DialogTrigger asChild>
-                <Button variant="outline">
-                    <RiUploadLine className="h-4 w-4 sm:mr-2" />
-                    <span className="hidden sm:inline">Componenten importeren</span>
-                </Button>
+            <DialogTrigger render={<Button variant="outline" />}>
+                <RiUploadLine className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline">Componenten importeren</span>
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
