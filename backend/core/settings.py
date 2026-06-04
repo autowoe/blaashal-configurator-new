@@ -77,6 +77,31 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+BB_KEY_ID = os.environ.get("BB_KEY_ID", "")
+BB_APP_KEY = os.environ.get("BB_APP_KEY", "")
+_bb_endpoint = os.environ.get("BB_ENDPOINT_URL", "")
+if _bb_endpoint and not _bb_endpoint.startswith("http"):
+    _bb_endpoint = f"https://{_bb_endpoint}"
+BB_BUCKET = "polyned"
+
+if BB_KEY_ID and BB_APP_KEY and _bb_endpoint:
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+            "OPTIONS": {
+                "access_key": BB_KEY_ID,
+                "secret_key": BB_APP_KEY,
+                "bucket_name": BB_BUCKET,
+                "endpoint_url": _bb_endpoint,
+                "file_overwrite": False,
+                "querystring_auth": False,
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+
 ROOT_URLCONF = "core.urls"
 
 TEMPLATES = [
