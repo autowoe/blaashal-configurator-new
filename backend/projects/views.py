@@ -82,10 +82,10 @@ def build_generation_prompt(has_references=False, location_hint=""):
 
     return (
         f"Place a large white inflatable air-supported sports dome (blaashal) "
-        f"over the sports field in the masked/transparent area of this image.{location_hint}{ref_hint} "
+        f"over the sports field in the masked/transparent area of this image. {location_hint}{ref_hint} "
         "The dome must fill the entire masked area completely — size it to match the full extent of the transparent region. "
         "Do not modify anything outside the masked area. "
-        "The dome has a smooth white PVC membrane roof and a blue base band at the bottom. "
+        "The dome has a smooth white PVC membrane roof and a blue base band at the bottom. With a diamond-shaped netting over it like in the provided reference images."
         "Keep all surroundings (fences, trees, buildings, light poles, sky) exactly as they are. "
         "Match the existing lighting, shadows, and perspective. "
         "The result must look photorealistic, as if the dome was actually built here."

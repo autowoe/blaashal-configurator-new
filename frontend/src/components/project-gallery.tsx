@@ -25,11 +25,11 @@ export function ProjectGallery({ projectId, images, onImagesChange, selectedInde
     const [referenceIndexes, setReferenceIndexes] = useState<Set<number>>(new Set())
     const [showMaskSelector, setShowMaskSelector] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
-    const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
+    const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     useEffect(() => {
         return () => {
-            if (pollRef.current) clearInterval(pollRef.current)
+            if (pollRef.current) clearTimeout(pollRef.current)
         }
     }, [])
 
@@ -107,29 +107,31 @@ export function ProjectGallery({ projectId, images, onImagesChange, selectedInde
             )
             setGeneration({ status: "generating", requestId: request_id })
 
-            pollRef.current = setInterval(async () => {
-                try {
-                    const result = await getAiPreviewStatus(projectId, request_id)
-                    if (result.status === "COMPLETED" && result.image) {
-                        if (pollRef.current) clearInterval(pollRef.current)
-                        setGeneration({ status: "idle" })
-                        setShowMaskSelector(false)
-                        onImagesChange([result.image, ...images])
-                        onSelect(0)
-                        toast("AI preview gegenereerd!", { type: "success" })
-                    } else if (result.status === "FAILED") {
-                        if (pollRef.current) clearInterval(pollRef.current)
+            const schedulePoll = () => {
+                pollRef.current = setTimeout(async () => {
+                    try {
+                        const result = await getAiPreviewStatus(projectId, request_id)
+                        if (result.status === "COMPLETED" && result.image) {
+                            setGeneration({ status: "idle" })
+                            setShowMaskSelector(false)
+                            onImagesChange([result.image, ...images])
+                            onSelect(0)
+                            toast("AI preview gegenereerd!", { type: "success" })
+                        } else if (result.status === "FAILED") {
+                            setGeneration({ status: "error" })
+                            setShowMaskSelector(false)
+                            toast("AI generatie mislukt", { type: "error" })
+                        } else {
+                            schedulePoll()
+                        }
+                    } catch {
                         setGeneration({ status: "error" })
                         setShowMaskSelector(false)
                         toast("AI generatie mislukt", { type: "error" })
                     }
-                } catch {
-                    if (pollRef.current) clearInterval(pollRef.current)
-                    setGeneration({ status: "error" })
-                    setShowMaskSelector(false)
-                    toast("AI generatie mislukt", { type: "error" })
-                }
-            }, 3000)
+                }, 3000)
+            }
+            schedulePoll()
         } catch {
             setGeneration({ status: "error" })
             setShowMaskSelector(false)
