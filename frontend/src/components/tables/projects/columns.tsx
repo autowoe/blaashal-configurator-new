@@ -21,8 +21,16 @@ export const columns: ColumnDef<Project>[] = [
         cell: ({ row }) => <ProjectStatusBadgeCell row={row} />
     },
     {
-        id: "created_by.email",
+        accessorKey: "created_by",
         header: "Gemaakt door",
+        cell: ({ row }) => {
+            const user = row.original.created_by
+            if (!user) return <span className="text-muted-foreground">—</span>
+            const name = user.first_name && user.last_name
+                ? `${user.first_name} ${user.last_name}`
+                : user.email || user.username
+            return <span>{name}</span>
+        },
     },
     {
         id: "actions",
