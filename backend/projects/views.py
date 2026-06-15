@@ -12,16 +12,17 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
-from rest_framework.parsers import MultiPartParser
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.response import Response
 
-from projects.models import Project, ProjectImage
+from projects.models import Project, ProjectImage, ReferenceImage
 from projects.filters import ProjectFilter
 from projects.serializers import (
     ProjectSerializer,
     ProjectCreateSerializer,
     ProjectUpdateSerializer,
     ProjectImageSerializer,
+    ReferenceImageSerializer,
 )
 from projects.pagination import ProjectPagination
 
@@ -163,12 +164,28 @@ class ProjectViewSet(viewsets.ModelViewSet):
         raw_mask_bytes = base64.b64decode(b64data)
         location_hint = _mask_location_hint(raw_mask_bytes)
 
+        reference_images = ReferenceImage.objects.filter(is_active=True).order_by(
+            "-created_at"
+        )[:10]
+        ref_image_urls = []
+        for ref in reference_images:
+            with ref.image.open("rb") as f:
+                ref_bytes = f.read()
+            ref_mime = (
+                mimetypes.guess_type(ref.image.name.split("/")[-1])[0] or "image/jpeg"
+            )
+            ref_image_urls.append(fal_client.encode(ref_bytes, ref_mime))
+
         handle = fal_client.submit(
             FAL_APP_ID,
             arguments={
-                "image_urls": [fal_client.encode(image_bytes, mime_type)],
+                "image_urls": [fal_client.encode(image_bytes, mime_type)]
+                + ref_image_urls,
                 "mask_url": fal_client.encode(raw_mask_bytes, "image/png"),
-                "prompt": build_generation_prompt(location_hint=location_hint),
+                "prompt": build_generation_prompt(
+                    has_references=len(ref_image_urls) > 0,
+                    location_hint=location_hint,
+                ),
                 "quality": "high",
                 "output_format": "jpeg",
                 "openai_api_key": os.environ["OPENAI_API_KEY"],
@@ -220,3 +237,37 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
     class Meta:
         ordering = ["created_at"]
+
+
+class ReferenceImageViewSet(viewsets.ViewSet):
+    parser_classes = [MultiPartParser, JSONParser]
+
+    def list(self, request):
+        qs = ReferenceImage.objects.order_by("-created_at")
+        serializer = ReferenceImageSerializer(
+            qs, many=True, context={"request": request}
+        )
+        return Response(serializer.data)
+
+    def create(self, request):
+        serializer = ReferenceImageSerializer(
+            data=request.data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def partial_update(self, request, pk=None):
+        image = get_object_or_404(ReferenceImage, pk=pk)
+        serializer = ReferenceImageSerializer(
+            image, data=request.data, partial=True, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def destroy(self, _request, pk=None):
+        image = get_object_or_404(ReferenceImage, pk=pk)
+        image.image.delete(save=False)
+        image.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

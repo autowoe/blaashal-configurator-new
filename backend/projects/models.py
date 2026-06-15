@@ -38,3 +38,12 @@ class ProjectImage(TimeStampedModel):
 
     def __str__(self):
         return f"{self.project} - {self.name or self.image.name}"
+
+
+class ReferenceImage(TimeStampedModel):
+    image = models.ImageField(upload_to="reference_images/")
+    name = models.CharField(max_length=255, blank=True)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name or self.image.name

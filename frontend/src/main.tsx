@@ -21,6 +21,8 @@ import type { ComponentPrice, ConfigurationType, ExistingConfiguration } from "@
 import { ThemedToastContainer } from "@/components/themed-toast-container";
 import { OrganizationList } from "@/pages/OrganizationList";
 import { OrganizationListLoader } from "@/loaders/organization-list-loader";
+import { ReferenceImages } from "@/pages/ReferenceImages";
+import { ReferenceImagesLoader } from "@/loaders/reference-images-loader";
 
 const router = createBrowserRouter([
   {
@@ -49,6 +51,13 @@ const router = createBrowserRouter([
         handle: { breadcrumb: "Organisaties" },
         loader: OrganizationListLoader,
         element: <OrganizationList />,
+      },
+      {
+        id: "reference_images",
+        path: "/reference-images",
+        handle: { breadcrumb: "Referentie afbeeldingen" },
+        loader: ReferenceImagesLoader,
+        element: <ReferenceImages />,
       },
       {
         id: "projects_parent",

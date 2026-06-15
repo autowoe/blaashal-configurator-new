@@ -200,6 +200,15 @@ export function MaskSelector({ image, isGenerating, onConfirm, onCancel }: Props
                             onMouseLeave={handleMouseUp}
                         />
                     )}
+                    {isGenerating && (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-black/70 rounded">
+                            <RiLoader4Line className="h-12 w-12 text-white animate-spin" />
+                            <div className="text-center">
+                                <p className="text-white font-medium text-sm">AI is bezig met genereren</p>
+                                <p className="text-white/50 text-xs mt-1">Dit kan een minuut duren</p>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
 

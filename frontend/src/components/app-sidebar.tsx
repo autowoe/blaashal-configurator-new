@@ -28,6 +28,10 @@ const data = {
       title: "Organisaties",
       url: "/organizations",
     },
+    {
+      title: "Referentie afbeeldingen",
+      url: "/reference-images",
+    },
   ],
 }
 
