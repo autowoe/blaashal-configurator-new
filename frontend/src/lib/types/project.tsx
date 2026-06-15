@@ -21,3 +21,13 @@ export type ProjectImage = {
     name: string
     created_at: string
 }
+
+export type ProjectStatusEvent = {
+    id: number
+    from_status: Project["status"] | null
+    from_status_display: string | null
+    to_status: Project["status"]
+    to_status_display: string
+    changed_by: import("@/lib/types/user").User | null
+    created_at: string
+}

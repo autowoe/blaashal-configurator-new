@@ -29,6 +29,23 @@ class Project(TimeStampedModel):
         return self.name
 
 
+class ProjectStatusEvent(models.Model):
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="status_events"
+    )
+    from_status = models.CharField(
+        max_length=20, choices=Status.choices, null=True, blank=True
+    )
+    to_status = models.CharField(max_length=20, choices=Status.choices)
+    changed_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+
+
 class ProjectImage(TimeStampedModel):
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="images"

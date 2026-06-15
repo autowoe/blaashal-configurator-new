@@ -4,7 +4,13 @@ from rest_framework import serializers
 from organizations.serializers import OrganizationSerializer
 from organizations.models import Organization
 
-from projects.models import Project, ProjectImage, ReferenceImage, Status
+from projects.models import (
+    Project,
+    ProjectImage,
+    ProjectStatusEvent,
+    ReferenceImage,
+    Status,
+)
 
 
 class ProjectSerializer(serializers.ModelSerializer):
@@ -58,6 +64,28 @@ class ProjectImageSerializer(serializers.ModelSerializer):
         if request:
             return request.build_absolute_uri(obj.image.url)
         return obj.image.url
+
+
+class ProjectStatusEventSerializer(serializers.ModelSerializer):
+    changed_by = UserSerializer(read_only=True)
+    from_status_display = serializers.CharField(
+        source="get_from_status_display", read_only=True
+    )
+    to_status_display = serializers.CharField(
+        source="get_to_status_display", read_only=True
+    )
+
+    class Meta:
+        model = ProjectStatusEvent
+        fields = [
+            "id",
+            "from_status",
+            "from_status_display",
+            "to_status",
+            "to_status_display",
+            "changed_by",
+            "created_at",
+        ]
 
 
 class ReferenceImageSerializer(serializers.ModelSerializer):

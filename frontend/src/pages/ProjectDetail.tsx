@@ -1,7 +1,7 @@
 import { useLoaderData, useRevalidator } from "react-router"
 import { useRef, useState } from "react"
-import type { Project, ProjectImage } from "@/lib/types/project"
-import { Sheet, SheetContent } from "@/components/ui/sheet"
+import type { Project, ProjectImage, ProjectStatusEvent } from "@/lib/types/project"
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import type {
     ConfigurationType,
     ComponentPrice,
@@ -16,19 +16,20 @@ import {
 } from "@/components/forms/configuration-form"
 import { downloadQuotePdf } from "@/lib/api/services/configuration.service"
 import { toast } from "react-toastify"
-import { RiFilePdf2Line, RiImageLine, RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine } from "@remixicon/react"
+import { RiFilePdf2Line, RiImageLine, RiArrowLeftSLine, RiArrowRightSLine, RiCloseLine, RiTimeLine } from "@remixicon/react"
 import { SendQuoteDialog } from "@/components/send-quote-dialog"
 import type { Visualization } from "@/lib/types/visualization"
 import { Configuration3DPreview, type Configuration3DPreviewRef } from "@/components/3d-configurator"
 import { ProjectGallery } from "@/components/project-gallery"
 import { Switch } from "@/components/ui/switch"
+import { ProjectStatusTimeline } from "@/components/project-status-timeline"
 
 const LOCKED_STATUSES = ["quoted", "accepted", "done", "denied"]
 
 const GALLERY_WIDTH = "383px"
 
 export const ProjectDetail = () => {
-    const { project, types, components, visualizations, existingConfig, activeTypeId, projectImages } =
+    const { project, types, components, visualizations, existingConfig, activeTypeId, projectImages, statusHistory } =
         useLoaderData() as {
             project: Project
             types: ConfigurationType[]
@@ -37,6 +38,7 @@ export const ProjectDetail = () => {
             existingConfig: ExistingConfiguration | null
             activeTypeId: string | null
             projectImages: ProjectImage[]
+            statusHistory: ProjectStatusEvent[]
         }
 
     const revalidator = useRevalidator()
@@ -45,6 +47,7 @@ export const ProjectDetail = () => {
 
     const [showPreview, setShowPreview] = useState(false)
     const [showGallery, setShowGallery] = useState(false)
+    const [showHistory, setShowHistory] = useState(false)
     const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null)
     const [showSendDialog, setShowSendDialog] = useState(false)
     const [isDownloadingPdf, setIsDownloadingPdf] = useState(false)
@@ -249,6 +252,15 @@ export const ProjectDetail = () => {
                             Foto's{images.length > 0 ? ` (${images.length})` : ""}
                         </Button>
 
+                        <Button
+                            variant={showHistory ? "default" : "outline"}
+                            onClick={() => setShowHistory(true)}
+                            className="w-full sm:w-auto"
+                        >
+                            <RiTimeLine className="h-4 w-4 mr-2" />
+                            Historie
+                        </Button>
+
                         {!isLocked && (
                             <div className="flex items-center space-x-2">
                                 <Switch
@@ -284,6 +296,17 @@ export const ProjectDetail = () => {
                     )}
                 </div>
             </div>
+
+            <Sheet open={showHistory} onOpenChange={setShowHistory}>
+                <SheetContent side="right" className="w-full sm:max-w-[400px] p-0 flex flex-col">
+                    <SheetHeader className="px-5 py-4 border-b border-border shrink-0">
+                        <SheetTitle>Statusgeschiedenis</SheetTitle>
+                    </SheetHeader>
+                    <div className="flex-1 overflow-y-auto">
+                        <ProjectStatusTimeline events={statusHistory} />
+                    </div>
+                </SheetContent>
+            </Sheet>
 
             <SendQuoteDialog
                 open={showSendDialog}

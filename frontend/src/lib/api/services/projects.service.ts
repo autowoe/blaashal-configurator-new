@@ -1,4 +1,4 @@
-import type { PaginatedProjects, Project, ProjectImage } from "@/lib/types/project";
+import type { PaginatedProjects, Project, ProjectImage, ProjectStatusEvent } from "@/lib/types/project";
 import type { ExistingConfiguration } from "@/lib/types/configuration";
 import { apiFetch, apiFetchJson } from "@/lib/api/client";
 
@@ -114,6 +114,10 @@ export async function generateAiPreview(
             reference_image_ids: referenceImageIds ?? [],
         }),
     });
+}
+
+export async function getProjectStatusHistory(projectId: string | number): Promise<ProjectStatusEvent[]> {
+    return apiFetchJson<ProjectStatusEvent[]>(`/projects/${projectId}/status-history/`);
 }
 
 export async function getAiPreviewStatus(

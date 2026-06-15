@@ -3,6 +3,7 @@ import {
     getProject,
     getProjectConfigurations,
     getProjectImages,
+    getProjectStatusHistory,
 } from "@/lib/api/services/projects.service";
 import {
     getConfigurationTypes,
@@ -19,11 +20,12 @@ export const ProjectDetailLoader = async ({ params, request }: LoaderFunctionArg
     const url = new URL(request.url);
     const configurationType = url.searchParams.get("configuration_type");
 
-    const [project, types, configData, projectImages] = await Promise.all([
+    const [project, types, configData, projectImages, statusHistory] = await Promise.all([
         getProject(projectId),
         getConfigurationTypes(),
         getProjectConfigurations(projectId, { isActive: true }),
         getProjectImages(projectId),
+        getProjectStatusHistory(projectId),
     ]);
 
     const existingConfig = configData[0] ?? null;
@@ -49,5 +51,6 @@ export const ProjectDetailLoader = async ({ params, request }: LoaderFunctionArg
         existingConfig,
         activeTypeId: typeToFetch,
         projectImages,
+        statusHistory,
     };
 };

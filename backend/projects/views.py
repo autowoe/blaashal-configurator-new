@@ -22,6 +22,7 @@ from projects.serializers import (
     ProjectCreateSerializer,
     ProjectUpdateSerializer,
     ProjectImageSerializer,
+    ProjectStatusEventSerializer,
     ReferenceImageSerializer,
 )
 from projects.pagination import ProjectPagination
@@ -106,6 +107,17 @@ class ProjectViewSet(viewsets.ModelViewSet):
         if self.action == "partial_update":
             return ProjectUpdateSerializer
         return ProjectSerializer
+
+    def perform_update(self, serializer):
+        serializer.instance._changed_by = self.request.user
+        serializer.save()
+
+    @action(detail=True, methods=["get"], url_path="status-history")
+    def status_history(self, _request, **_kwargs):
+        project = self.get_object()
+        events = project.status_events.order_by("created_at")
+        serializer = ProjectStatusEventSerializer(events, many=True)
+        return Response(serializer.data)
 
     @action(
         detail=True,
