@@ -88,7 +88,9 @@ function DocumentsTab() {
     const [newFolderName, setNewFolderName] = useState("")
     const [editingFolderId, setEditingFolderId] = useState<number | null>(null)
     const [editingFolderName, setEditingFolderName] = useState("")
+    const [isDragging, setIsDragging] = useState(false)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const dragCounterRef = useRef(0)
 
     const loadAll = async () => {
         const [f, d] = await Promise.all([getFolders(), getDocuments()])
@@ -102,9 +104,7 @@ function DocumentsTab() {
         .filter(d => activeFolderId === "all" || d.folder === activeFolderId)
         .filter(d => d.name.toLowerCase().includes(search.toLowerCase()))
 
-    const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files ?? [])
-        e.target.value = ""
+    const uploadFiles = async (files: File[]) => {
         if (!files.length) return
         setIsUploading(true)
         try {
@@ -119,6 +119,32 @@ function DocumentsTab() {
         } finally {
             setIsUploading(false)
         }
+    }
+
+    const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files ?? [])
+        e.target.value = ""
+        uploadFiles(files)
+    }
+
+    const handleDragEnter = (e: React.DragEvent) => {
+        e.preventDefault()
+        dragCounterRef.current++
+        if (dragCounterRef.current === 1) setIsDragging(true)
+    }
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault()
+        dragCounterRef.current--
+        if (dragCounterRef.current === 0) setIsDragging(false)
+    }
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault()
+        dragCounterRef.current = 0
+        setIsDragging(false)
+        const files = Array.from(e.dataTransfer.files)
+        uploadFiles(files)
     }
 
     const handleDelete = async (doc: KbDocument) => {
@@ -245,7 +271,23 @@ function DocumentsTab() {
             </div>
 
             {/* Main area */}
-            <div className="flex-1 flex flex-col overflow-hidden">
+            <div
+                className="flex-1 flex flex-col overflow-hidden relative"
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={e => e.preventDefault()}
+                onDrop={handleDrop}
+            >
+                {isDragging && (
+                    <div className="absolute inset-0 z-20 flex flex-col items-center justify-center gap-3 bg-background/90 border-2 border-dashed border-primary rounded-lg pointer-events-none">
+                        <RiUploadLine className="h-10 w-10 text-primary opacity-70" />
+                        <p className="text-sm font-medium text-primary">
+                            {activeFolderId === "all"
+                                ? "Bestanden neerzetten om te uploaden"
+                                : `Neerzetten in "${folders.find(f => f.id === activeFolderId)?.name}"`}
+                        </p>
+                    </div>
+                )}
                 {/* Toolbar */}
                 <div className="shrink-0 flex items-center gap-3 px-5 py-3 border-b border-border bg-background">
                     <Input

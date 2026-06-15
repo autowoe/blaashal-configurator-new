@@ -1,4 +1,5 @@
 import os
+import re
 
 import anthropic
 from django.db import transaction
@@ -190,14 +191,16 @@ class KbSessionViewSet(viewsets.ModelViewSet):
                 {"detail": f"AI-fout: {exc}"}, status=status.HTTP_502_BAD_GATEWAY
             )
 
-        # Build source references
+        # Only include sources that Claude actually cited ([1], [2], …)
+        cited_indices = {int(m) - 1 for m in re.findall(r"\[(\d+)\]", answer)}
         sources = [
             {
                 "doc_name": c.document.name,
                 "chunk_label": c.chunk_label,
                 "doc_id": c.document_id,
             }
-            for c in relevant
+            for i, c in enumerate(relevant)
+            if i in cited_indices
         ]
 
         # Save messages
@@ -223,9 +226,11 @@ def _build_system_prompt(chunks) -> str:
         "Als er onvoldoende context is, zeg dat dan eerlijk. "
         "Antwoord altijd in het Nederlands.\n\n"
         "Structureer elk antwoord als volgt:\n"
-        "**Antwoord:** [concreet antwoord]\n"
+        "**Antwoord:** [concreet antwoord, verwijs naar gebruikte fragmenten als [1], [2] etc.]\n"
         "**Gebaseerd op:** [documentnaam en locatie]\n"
         "**Onzekerheid:** [wat ontbreekt — weglaten als niet van toepassing]\n\n"
+        "Belangrijk: verwijs in je antwoord altijd naar de fragmentnummers die je hebt gebruikt, bijvoorbeeld [1] of [2]. "
+        "Gebruik alleen nummers van fragmenten die je daadwerkelijk hebt gebruikt.\n\n"
     )
 
     if not chunks:
