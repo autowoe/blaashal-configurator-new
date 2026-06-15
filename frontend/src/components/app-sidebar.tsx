@@ -32,6 +32,10 @@ const data = {
       title: "Referentie afbeeldingen",
       url: "/reference-images",
     },
+    {
+      title: "Kennisbank",
+      url: "/kennisbank",
+    },
   ],
 }
 

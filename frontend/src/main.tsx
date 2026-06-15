@@ -23,6 +23,7 @@ import { OrganizationList } from "@/pages/OrganizationList";
 import { OrganizationListLoader } from "@/loaders/organization-list-loader";
 import { ReferenceImages } from "@/pages/ReferenceImages";
 import { ReferenceImagesLoader } from "@/loaders/reference-images-loader";
+import { Kennisbank } from "@/pages/Kennisbank";
 
 const router = createBrowserRouter([
   {
@@ -58,6 +59,12 @@ const router = createBrowserRouter([
         handle: { breadcrumb: "Referentie afbeeldingen" },
         loader: ReferenceImagesLoader,
         element: <ReferenceImages />,
+      },
+      {
+        id: "kennisbank",
+        path: "/kennisbank",
+        handle: { breadcrumb: "Kennisbank" },
+        element: <Kennisbank />,
       },
       {
         id: "projects_parent",

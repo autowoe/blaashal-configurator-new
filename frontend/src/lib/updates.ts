@@ -10,6 +10,13 @@ export interface AppUpdate {
 
 export const updates: AppUpdate[] = [
     {
+        id: "2026-06-15-kennisbank",
+        date: "2026-06-15",
+        title: "Kennisbank met AI-chat",
+        description: "Documenten kunnen nu worden geüpload naar een interne kennisbank (PDF, Word, Excel, PowerPoint, afbeeldingen en meer). De AI extraheert automatisch de tekst — inclusief gescande PDF's en afbeeldingen via OCR. Via de chattab kun je vragen stellen over de geüploade documenten; de AI antwoordt uitsluitend op basis van de kennisbank en vermeldt de bronnen.",
+        type: "feature",
+    },
+    {
         id: "2026-06-04-ai-preview",
         date: "2026-06-04",
         title: "Verbeterde AI-preview met referentiebeelden",

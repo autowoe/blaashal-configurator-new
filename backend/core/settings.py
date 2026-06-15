@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "components",
     "configurations",
     "visualization",
+    "knowledge_base",
 ]
 
 MIDDLEWARE = [
