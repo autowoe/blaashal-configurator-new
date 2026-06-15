@@ -1,17 +1,8 @@
 """Text extraction from uploaded documents."""
 
-import base64
 import io
-import os
 
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
-IMAGE_MEDIA_TYPES = {
-    ".png": "image/png",
-    ".jpg": "image/jpeg",
-    ".jpeg": "image/jpeg",
-    ".gif": "image/gif",
-    ".webp": "image/webp",
-}
 
 # PDFs with less than this many characters of pdfminer output are treated as scanned
 PDF_OCR_FALLBACK_THRESHOLD = 200
@@ -43,7 +34,7 @@ def extract_text(file_obj, ext: str) -> tuple[str | None, str]:
             return _extract_pptx(file_obj), "indexed"
 
         if ext in IMAGE_EXTS:
-            return _extract_image(file_obj, ext), "indexed"
+            return _extract_image(file_obj), "indexed"
 
         # Binary formats we can't parse
         return None, "reference"
@@ -52,46 +43,16 @@ def extract_text(file_obj, ext: str) -> tuple[str | None, str]:
         return f"[Extractiefout: {exc}]", "error"
 
 
-def _ocr_with_claude(image_bytes: bytes, media_type: str) -> str:
-    import anthropic
+def _ocr(image_bytes: bytes) -> str:
+    import pytesseract
+    from PIL import Image
 
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
-    response = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=4000,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": media_type,
-                            "data": base64.standard_b64encode(image_bytes).decode(
-                                "utf-8"
-                            ),
-                        },
-                    },
-                    {
-                        "type": "text",
-                        "text": (
-                            "Extract all text from this image. "
-                            "Return only the extracted text, preserving the layout as much as possible. "
-                            "If there is no text, return an empty string."
-                        ),
-                    },
-                ],
-            }
-        ],
-    )
-    return response.content[0].text
+    image = Image.open(io.BytesIO(image_bytes))
+    return pytesseract.image_to_string(image, lang="nld+eng")
 
 
-def _extract_image(file_obj, ext: str) -> str:
-    image_bytes = file_obj.read()
-    media_type = IMAGE_MEDIA_TYPES[ext.lower()]
-    return _ocr_with_claude(image_bytes, media_type)
+def _extract_image(file_obj) -> str:
+    return _ocr(file_obj.read())
 
 
 def _extract_pdf(file_obj) -> str:
@@ -130,7 +91,7 @@ def _extract_pdf_ocr(file_bytes: bytes) -> str:
         mat = fitz.Matrix(2, 2)  # 2× zoom for better OCR quality
         pix = page.get_pixmap(matrix=mat)
         img_bytes = pix.tobytes("png")
-        page_text = _ocr_with_claude(img_bytes, "image/png")
+        page_text = _ocr(img_bytes)
         if page_text.strip():
             all_text.append(f"[Pagina {page_num + 1}]\n{page_text}")
 
