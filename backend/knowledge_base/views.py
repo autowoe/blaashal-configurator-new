@@ -178,9 +178,13 @@ class KbSessionViewSet(viewsets.ModelViewSet):
             session.title = _auto_title(question)
             session.save(update_fields=["title"])
 
+        # Rewrite query for retrieval so synonym mismatches don't bury relevant docs
+        client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+        search_query = _rewrite_query_for_retrieval(question, client)
+
         # Retrieve relevant chunks
         all_chunks = KbChunk.objects.all()
-        relevant = retrieve(question, all_chunks)
+        relevant = retrieve(search_query, all_chunks)
 
         # Build system prompt
         system_prompt = _build_system_prompt(relevant)
@@ -192,7 +196,6 @@ class KbSessionViewSet(viewsets.ModelViewSet):
 
         # Call Claude
         try:
-            client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
             ai_response = client.messages.create(
                 model="claude-sonnet-4-6",
                 max_tokens=2000,
@@ -230,6 +233,31 @@ class KbSessionViewSet(viewsets.ModelViewSet):
                 "session_title": session.title,
             }
         )
+
+
+def _rewrite_query_for_retrieval(question: str, client) -> str:
+    """Rewrite a natural language question into search-optimised keywords.
+
+    Falls back to the original question if the API call fails.
+    """
+    try:
+        result = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=60,
+            system=(
+                "Je bent een zoekopdracht-optimizer voor een kennisbank over luchthallen "
+                "en bouwprojecten van Poly-Nederland. "
+                "Herschrijf de gebruikersvraag als een compacte zoekzin van maximaal 10 woorden "
+                "met domeinspecifieke trefwoorden en synoniemen (bijv. lijst→overzicht, "
+                "projecten→klanten/opdrachten, recent→nieuw/datum). "
+                "Geef alleen de zoekzin terug, geen uitleg."
+            ),
+            messages=[{"role": "user", "content": question}],
+        )
+        rewritten = result.content[0].text.strip()
+        return rewritten or question
+    except Exception:
+        return question
 
 
 def _build_system_prompt(chunks) -> str:
