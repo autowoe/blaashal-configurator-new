@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
     RiAddLine, RiChat1Line, RiDeleteBinLine, RiFileLine, RiFolder2Line,
-    RiFolderOpenLine, RiLoader4Line, RiPencilLine, RiRefreshLine, RiSendPlaneLine, RiUploadLine,
+    RiFolderOpenLine, RiFolderUploadLine, RiLoader4Line, RiPencilLine, RiRefreshLine, RiSendPlaneLine, RiUploadLine,
 } from "@remixicon/react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -75,6 +75,37 @@ export function Kennisbank() {
     )
 }
 
+// ── Folder-recursive file reading via FileSystemEntry API ────────────────────
+async function readAllEntries(reader: FileSystemDirectoryReader): Promise<FileSystemEntry[]> {
+    const entries: FileSystemEntry[] = []
+    while (true) {
+        const batch = await new Promise<FileSystemEntry[]>((resolve) => {
+            reader.readEntries(resolve, () => resolve([]))
+        })
+        if (batch.length === 0) break
+        entries.push(...batch)
+    }
+    return entries
+}
+
+async function readEntryFiles(entry: FileSystemEntry): Promise<File[]> {
+    if (entry.isFile) {
+        return new Promise((resolve) => {
+            (entry as FileSystemFileEntry).file(
+                (file) => resolve([file]),
+                () => resolve([]),
+            )
+        })
+    }
+    if (entry.isDirectory) {
+        const reader = (entry as FileSystemDirectoryEntry).createReader()
+        const children = await readAllEntries(reader)
+        const nested = await Promise.all(children.map(readEntryFiles))
+        return nested.flat()
+    }
+    return []
+}
+
 // ════════════════════════════════════════════════════════════════════════════
 // DOCUMENTS TAB
 // ════════════════════════════════════════════════════════════════════════════
@@ -89,8 +120,14 @@ function DocumentsTab() {
     const [editingFolderId, setEditingFolderId] = useState<number | null>(null)
     const [editingFolderName, setEditingFolderName] = useState("")
     const [isDragging, setIsDragging] = useState(false)
+    const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
+    const folderInputRef = useRef<HTMLInputElement>(null)
     const dragCounterRef = useRef(0)
+
+    useEffect(() => {
+        folderInputRef.current?.setAttribute("webkitdirectory", "")
+    }, [])
 
     const loadAll = async () => {
         const [f, d] = await Promise.all([getFolders(), getDocuments()])
@@ -107,17 +144,31 @@ function DocumentsTab() {
     const uploadFiles = async (files: File[]) => {
         if (!files.length) return
         setIsUploading(true)
+        setUploadProgress({ done: 0, total: files.length })
+        let failed = 0
         try {
             for (const file of files) {
                 const folderId = activeFolderId === "all" ? undefined : activeFolderId
-                await uploadDocument(file, folderId)
+                try {
+                    await uploadDocument(file, folderId)
+                } catch {
+                    failed++
+                }
+                setUploadProgress(prev => prev ? { ...prev, done: prev.done + 1 } : null)
             }
-            toast(`${files.length} bestand${files.length > 1 ? "en" : ""} geüpload`, { type: "success" })
+            const succeeded = files.length - failed
+            if (succeeded > 0) {
+                toast(
+                    `${succeeded} bestand${succeeded !== 1 ? "en" : ""} geüpload${failed > 0 ? `, ${failed} mislukt` : ""}`,
+                    { type: failed > 0 ? "warning" : "success" },
+                )
+            } else {
+                toast("Upload mislukt", { type: "error" })
+            }
             await loadAll()
-        } catch {
-            toast("Upload mislukt", { type: "error" })
         } finally {
             setIsUploading(false)
+            setUploadProgress(null)
         }
     }
 
@@ -139,12 +190,19 @@ function DocumentsTab() {
         if (dragCounterRef.current === 0) setIsDragging(false)
     }
 
-    const handleDrop = (e: React.DragEvent) => {
+    const handleDrop = async (e: React.DragEvent) => {
         e.preventDefault()
         dragCounterRef.current = 0
         setIsDragging(false)
-        const files = Array.from(e.dataTransfer.files)
-        uploadFiles(files)
+        const entries = Array.from(e.dataTransfer.items)
+            .map(item => item.webkitGetAsEntry())
+            .filter((entry): entry is FileSystemEntry => entry !== null)
+        if (entries.length > 0) {
+            const nested = await Promise.all(entries.map(readEntryFiles))
+            uploadFiles(nested.flat())
+        } else {
+            uploadFiles(Array.from(e.dataTransfer.files))
+        }
     }
 
     const handleDelete = async (doc: KbDocument) => {
@@ -283,7 +341,7 @@ function DocumentsTab() {
                         <RiUploadLine className="h-10 w-10 text-primary opacity-70" />
                         <p className="text-sm font-medium text-primary">
                             {activeFolderId === "all"
-                                ? "Bestanden neerzetten om te uploaden"
+                                ? "Bestanden of mappen neerzetten om te uploaden"
                                 : `Neerzetten in "${folders.find(f => f.id === activeFolderId)?.name}"`}
                         </p>
                     </div>
@@ -307,13 +365,31 @@ function DocumentsTab() {
                             ? <RiLoader4Line className="h-4 w-4 mr-2 animate-spin" />
                             : <RiUploadLine className="h-4 w-4 mr-2" />
                         }
-                        {isUploading ? "Uploaden..." : "Bestand uploaden"}
+                        {uploadProgress
+                            ? `${uploadProgress.done}/${uploadProgress.total} bestanden...`
+                            : isUploading ? "Uploaden..." : "Bestand uploaden"}
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => folderInputRef.current?.click()}
+                        disabled={isUploading}
+                    >
+                        <RiFolderUploadLine className="h-4 w-4 mr-2" />
+                        Map uploaden
                     </Button>
                     <input
                         ref={fileInputRef}
                         type="file"
                         multiple
                         accept=".pdf,.docx,.doc,.xlsx,.xls,.xlsm,.pptx,.txt,.md,.csv,.json,.xml,.png,.jpg,.jpeg,.gif,.webp"
+                        className="hidden"
+                        onChange={handleUpload}
+                    />
+                    <input
+                        ref={folderInputRef}
+                        type="file"
+                        multiple
                         className="hidden"
                         onChange={handleUpload}
                     />
