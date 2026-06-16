@@ -132,9 +132,46 @@ def _extract_excel(file_obj) -> str:
     wb = openpyxl.load_workbook(file_obj, read_only=True, data_only=True)
     lines = []
     for sheet in wb.worksheets:
-        lines.append(f"[Tabblad: {sheet.title}]")
+        all_rows = []
         for row in sheet.iter_rows(values_only=True):
             cells = [str(c) if c is not None else "" for c in row]
             if any(c.strip() for c in cells):
-                lines.append("\t".join(cells))
+                all_rows.append(cells)
+
+        if not all_rows:
+            continue
+
+        lines.append(f"[Tabblad: {sheet.title} — {len(all_rows)} rijen]")
+
+        # Detect header row: first row where most cells are non-numeric text
+        first = all_rows[0]
+        non_empty = [c.strip() for c in first if c.strip()]
+        numeric = sum(1 for c in non_empty if _looks_numeric(c))
+        has_headers = non_empty and numeric < len(non_empty) / 2
+
+        if has_headers and len(all_rows) > 1:
+            headers = [c.strip() for c in first]
+            lines.append(f"[Kolommen: {' | '.join(h for h in headers if h)}]")
+            for row_cells in all_rows[1:]:
+                if any(c.strip() for c in row_cells):
+                    pairs = [
+                        f"{h}: {v}"
+                        for h, v in zip(headers, row_cells)
+                        if h and v.strip()
+                    ]
+                    if pairs:
+                        lines.append(", ".join(pairs))
+        else:
+            for row_cells in all_rows:
+                lines.append("\t".join(row_cells))
+
     return "\n".join(lines)
+
+
+def _looks_numeric(s: str) -> bool:
+    s = s.strip().replace(",", ".").replace("%", "").replace("€", "").replace("-", "")
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
