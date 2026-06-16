@@ -176,6 +176,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
         raw_mask_bytes = base64.b64decode(b64data)
         location_hint = _mask_location_hint(raw_mask_bytes)
 
+        # OpenAI edit API requires transparent PNG: transparent=generate, opaque=keep.
+        # The frontend sends a black/white mask (white=generate), so invert to alpha.
+        bw_mask = PILImage.open(io.BytesIO(raw_mask_bytes)).convert("L")
+        inverted_alpha = PILImage.eval(bw_mask, lambda x: 255 - x)
+        api_mask = PILImage.new("RGBA", bw_mask.size, (0, 0, 0, 255))
+        api_mask.putalpha(inverted_alpha)
+        api_mask_buf = io.BytesIO()
+        api_mask.save(api_mask_buf, format="PNG")
+        api_mask_bytes = api_mask_buf.getvalue()
+
         reference_images = ReferenceImage.objects.filter(is_active=True).order_by(
             "-created_at"
         )[:10]
@@ -193,7 +203,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             arguments={
                 "image_urls": [fal_client.encode(image_bytes, mime_type)]
                 + ref_image_urls,
-                "mask_url": fal_client.encode(raw_mask_bytes, "image/png"),
+                "mask_url": fal_client.encode(api_mask_bytes, "image/png"),
                 "prompt": build_generation_prompt(
                     has_references=len(ref_image_urls) > 0,
                     location_hint=location_hint,
