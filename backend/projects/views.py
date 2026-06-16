@@ -5,8 +5,7 @@ import os
 import urllib.request
 
 import fal_client
-from PIL import Image as PILImage, ImageFilter
-from django.core.cache import cache
+from PIL import Image as PILImage
 from django.core.files.base import ContentFile
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -29,35 +28,6 @@ from projects.pagination import ProjectPagination
 
 FAL_APP_ID = "openai/gpt-image-2/edit"
 
-
-def _composite_with_dilated_mask(
-    original_bytes: bytes, generated_bytes: bytes, raw_mask_bytes: bytes
-) -> bytes:
-    """
-    Paste the generated image over the original using a dilated+blurred mask.
-    Dilation preserves the dome roof that naturally extends beyond the field boundary,
-    while restoring original pixels everywhere else (removes AI changes to hedges, fields, etc).
-    """
-    original = PILImage.open(io.BytesIO(original_bytes)).convert("RGB")
-    generated = PILImage.open(io.BytesIO(generated_bytes)).convert("RGB")
-    mask = PILImage.open(io.BytesIO(raw_mask_bytes)).convert("L")
-
-    if generated.size != original.size:
-        generated = generated.resize(original.size, PILImage.LANCZOS)
-    if mask.size != original.size:
-        mask = mask.resize(original.size, PILImage.LANCZOS)
-
-    # Expand the mask ~8% of image width so the dome roof overflow is included
-    expand = max(40, original.size[0] // 12)
-    dilated = mask.filter(ImageFilter.MaxFilter(size=expand * 2 + 1))
-    composite_mask = dilated.filter(ImageFilter.GaussianBlur(radius=expand // 3))
-
-    # composite(a, b, mask): white → a (generated), black → b (original)
-    result = PILImage.composite(generated, original, composite_mask)
-
-    out = io.BytesIO()
-    result.save(out, format="JPEG", quality=95)
-    return out.getvalue()
 
 
 def _mask_location_hint(mask_bytes: bytes) -> str:
@@ -176,16 +146,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
         raw_mask_bytes = base64.b64decode(b64data)
         location_hint = _mask_location_hint(raw_mask_bytes)
 
-        # OpenAI edit API requires transparent PNG: transparent=generate, opaque=keep.
-        # The frontend sends a black/white mask (white=generate), so invert to alpha.
-        bw_mask = PILImage.open(io.BytesIO(raw_mask_bytes)).convert("L")
-        inverted_alpha = PILImage.eval(bw_mask, lambda x: 255 - x)
-        api_mask = PILImage.new("RGBA", bw_mask.size, (0, 0, 0, 255))
-        api_mask.putalpha(inverted_alpha)
-        api_mask_buf = io.BytesIO()
-        api_mask.save(api_mask_buf, format="PNG")
-        api_mask_bytes = api_mask_buf.getvalue()
-
         reference_images = ReferenceImage.objects.filter(is_active=True).order_by(
             "-created_at"
         )[:10]
@@ -203,7 +163,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
             arguments={
                 "image_urls": [fal_client.encode(image_bytes, mime_type)]
                 + ref_image_urls,
-                "mask_url": fal_client.encode(api_mask_bytes, "image/png"),
+                "mask_url": fal_client.encode(raw_mask_bytes, "image/png"),
                 "prompt": build_generation_prompt(
                     has_references=len(ref_image_urls) > 0,
                     location_hint=location_hint,
@@ -212,12 +172,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 "output_format": "jpeg",
                 "openai_api_key": os.environ["OPENAI_API_KEY"],
             },
-        )
-
-        cache.set(
-            f"ai_composite_{handle.request_id}",
-            {"image_bytes": image_bytes, "mask_bytes": raw_mask_bytes},
-            timeout=3600,
         )
 
         return Response(
@@ -240,15 +194,6 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
         with urllib.request.urlopen(generated_url) as img_resp:
             img_bytes = img_resp.read()
-
-        composite_meta = cache.get(f"ai_composite_{request_id}")
-        if composite_meta:
-            img_bytes = _composite_with_dilated_mask(
-                composite_meta["image_bytes"],
-                img_bytes,
-                composite_meta["mask_bytes"],
-            )
-            cache.delete(f"ai_composite_{request_id}")
 
         image_file = ContentFile(img_bytes, name=f"ai_preview_{request_id[:8]}.jpg")
         project_image = ProjectImage(project=project, name="AI Preview")
