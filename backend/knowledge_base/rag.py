@@ -167,67 +167,58 @@ def bm25_score(
 
 def retrieve(query: str, chunks_qs, top_k: int = RETRIEVAL_K) -> list:
     """
-    Hybrid retrieval:
-    1. BM25 over all chunks (embedding column deferred) to find candidates.
-    2. Load embeddings only for the top candidates.
-    3. Semantic reranking with Voyage AI query embedding.
-    Falls back to pure BM25 if no embeddings exist yet.
+    Hybrid retrieval over all chunks:
+    - BM25 scores computed for every chunk (keyword signal).
+    - Semantic scores via numpy vectorized cosine similarity (meaning signal).
+    - Combined as weighted sum; returns top_k.
+    Falls back to pure BM25 when no embeddings exist yet.
+
+    No BM25 pre-filter: chunks that score 0 on keywords but high on semantics
+    (e.g. an Excel overview whose cells don't contain the query word) are still
+    found via the semantic path.
     """
-    # Phase 1: BM25 — load without embedding column for speed
-    chunks_light = list(
-        chunks_qs.defer("embedding").select_related("document__folder")
-    )
-    if not chunks_light:
+    import numpy as np
+
+    chunks = list(chunks_qs.select_related("document__folder"))
+    if not chunks:
         return []
 
-    idf = compute_idf(chunks_light)
-    avg_wc = sum(c.word_count for c in chunks_light) / len(chunks_light)
     query_tokens = tokenize(query)
+    idf = compute_idf(chunks)
+    avg_wc = sum(c.word_count for c in chunks) / len(chunks)
 
-    bm25_scored = sorted(
-        [
-            (
-                bm25_score(query_tokens, c.term_frequencies, c.word_count, avg_wc, idf),
-                c,
-            )
-            for c in chunks_light
-        ],
-        key=lambda x: x[0],
-        reverse=True,
-    )
-
-    # Phase 2: select candidates for semantic reranking
-    has_bm25_signal = bm25_scored and bm25_scored[0][0] >= SCORE_THRESHOLD
-    if has_bm25_signal:
-        # Rerank the top BM25 candidates semantically
-        candidate_pairs = bm25_scored[:SEMANTIC_CANDIDATE_K]
-    else:
-        # No keyword signal — use all chunks for pure semantic search
-        candidate_pairs = bm25_scored
-
-    candidate_ids = [c.id for _, c in candidate_pairs]
-
-    # Load embeddings for candidates only
-    chunks_with_emb = list(
-        chunks_qs.filter(id__in=candidate_ids).select_related("document__folder")
-    )
-    has_embeddings = any(bool(c.embedding) for c in chunks_with_emb)
+    has_embeddings = any(bool(c.embedding) for c in chunks)
 
     if not has_embeddings:
         # No embeddings yet — pure BM25 fallback
-        return [c for score, c in bm25_scored[:top_k] if score >= SCORE_THRESHOLD]
+        scored = [
+            (bm25_score(query_tokens, c.term_frequencies, c.word_count, avg_wc, idf), c)
+            for c in chunks
+        ]
+        scored.sort(key=lambda x: x[0], reverse=True)
+        return [c for score, c in scored[:top_k] if score >= SCORE_THRESHOLD]
 
-    # Phase 3: semantic reranking
-    query_emb = embed_query(query)
-    max_bm25 = candidate_pairs[0][0] if candidate_pairs[0][0] > 0 else 1.0
-    id_to_bm25 = {c.id: score for score, c in candidate_pairs}
+    # Separate chunks that have embeddings from those that don't
+    emb_chunks = [c for c in chunks if c.embedding]
+    no_emb_chunks = [c for c in chunks if not c.embedding]
 
-    combined = []
-    for chunk in chunks_with_emb:
-        bm25_norm = id_to_bm25.get(chunk.id, 0.0) / max_bm25
-        sem = cosine_similarity(query_emb, chunk.embedding) if chunk.embedding else 0.0
-        score = HYBRID_SEMANTIC_WEIGHT * sem + HYBRID_BM25_WEIGHT * bm25_norm
-        combined.append((score, chunk))
+    # Vectorized cosine similarity via numpy
+    matrix = np.array(emb_chunks[0].embedding, dtype=np.float32)
+    matrix = np.vstack([np.array(c.embedding, dtype=np.float32) for c in emb_chunks])
+    query_emb = np.array(embed_query(query), dtype=np.float32)
 
-    combined.sort(key=lambda x: x[0], reverse=True)
-    return [chunk for _, chunk in combined[:top_k]]
+    norms = np.linalg.norm(matrix, axis=1)
+    query_norm = float(np.linalg.norm(query_emb))
+    sem_scores = (matrix @ query_emb) / (norms * query_norm + 1e-8)
+
+    # BM25 scores for embedded chunks
+    bm25_raw = np.array(
+        [bm25_score(query_tokens, c.term_frequencies, c.word_count, avg_wc, idf) for c in emb_chunks],
+        dtype=np.float32,
+    )
+    max_bm25 = float(bm25_raw.max())
+    bm25_norm = bm25_raw / max_bm25 if max_bm25 > 0 else bm25_raw
+
+    hybrid = HYBRID_SEMANTIC_WEIGHT * sem_scores + HYBRID_BM25_WEIGHT * bm25_norm
+    top_indices = np.argsort(hybrid)[::-1][:top_k]
+    return [emb_chunks[int(i)] for i in top_indices]
