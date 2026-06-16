@@ -151,8 +151,14 @@ def _extract_excel(file_obj) -> str:
 
         if has_headers and len(all_rows) > 1:
             headers = [c.strip() for c in first]
-            lines.append(f"[Kolommen: {' | '.join(h for h in headers if h)}]")
-            for row_cells in all_rows[1:]:
+            header_str = " | ".join(h for h in headers if h)
+            lines.append(f"[Kolommen: {header_str}]")
+            # Natural-language summary so every chunk embedding captures "lijst/overzicht" intent
+            lines.append(f"[Dit tabblad bevat een lijst en overzicht van: {header_str}]")
+            for idx, row_cells in enumerate(all_rows[1:], 1):
+                # Repeat column context every 25 rows so later chunks also carry it
+                if idx > 1 and idx % 25 == 0:
+                    lines.append(f"[Kolommen: {header_str}]")
                 if any(c.strip() for c in row_cells):
                     pairs = [
                         f"{h}: {v}"
