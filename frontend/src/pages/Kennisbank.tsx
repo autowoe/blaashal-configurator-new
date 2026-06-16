@@ -47,7 +47,7 @@ export function Kennisbank() {
     const [tab, setTab] = useState<Tab>("documents")
 
     return (
-        <div className="h-full flex flex-col overflow-hidden">
+        <div className="h-full flex flex-col">
             {/* Tab switcher */}
             <div className="shrink-0 border-b border-border bg-background flex gap-1">
                 <button
@@ -70,7 +70,7 @@ export function Kennisbank() {
                 </button>
             </div>
 
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 flex min-w-0">
                 {tab === "documents" ? <DocumentsTab /> : <ChatTab />}
             </div>
         </div>
@@ -275,7 +275,7 @@ function DocumentsTab() {
     }
 
     return (
-        <div className="flex h-full overflow-hidden">
+        <div className="flex flex-1 min-w-0 overflow-hidden">
             {/* Folder sidebar */}
             <div className="w-52 shrink-0 border-r border-border bg-card flex flex-col overflow-y-auto">
                 <div className="flex items-center justify-between px-4 py-3 border-b border-border">
@@ -349,7 +349,7 @@ function DocumentsTab() {
 
             {/* Main area */}
             <div
-                className="flex-1 flex flex-col overflow-hidden relative"
+                className="flex-1 min-w-0 flex flex-col overflow-hidden relative"
                 onDragEnter={handleDragEnter}
                 onDragLeave={handleDragLeave}
                 onDragOver={e => e.preventDefault()}
@@ -366,37 +366,38 @@ function DocumentsTab() {
                     </div>
                 )}
                 {/* Toolbar */}
-                <div className="shrink-0 flex items-center gap-3 px-5 py-3 border-b border-border bg-background">
+                <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-background">
                     <Input
                         placeholder="Documenten zoeken..."
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         className="h-8 w-56 text-sm"
                     />
-                    <div className="flex-1" />
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => fileInputRef.current?.click()}
-                        disabled={isUploading}
-                    >
-                        {isUploading
-                            ? <RiLoader4Line className="h-4 w-4 mr-2 animate-spin" />
-                            : <RiUploadLine className="h-4 w-4 mr-2" />
-                        }
-                        {uploadProgress
-                            ? `${uploadProgress.done}/${uploadProgress.total} bestanden...`
-                            : isUploading ? "Uploaden..." : "Bestand uploaden"}
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => folderInputRef.current?.click()}
-                        disabled={isUploading}
-                    >
-                        <RiFolderUploadLine className="h-4 w-4 mr-2" />
-                        Map uploaden
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => fileInputRef.current?.click()}
+                            disabled={isUploading}
+                        >
+                            {isUploading
+                                ? <RiLoader4Line className="h-4 w-4 mr-2 animate-spin" />
+                                : <RiUploadLine className="h-4 w-4 mr-2" />
+                            }
+                            {uploadProgress
+                                ? `${uploadProgress.done}/${uploadProgress.total} bestanden...`
+                                : isUploading ? "Uploaden..." : "Bestand uploaden"}
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => folderInputRef.current?.click()}
+                            disabled={isUploading}
+                        >
+                            <RiFolderUploadLine className="h-4 w-4 mr-2" />
+                            Map uploaden
+                        </Button>
+                    </div>
                     <input
                         ref={fileInputRef}
                         type="file"
@@ -415,7 +416,7 @@ function DocumentsTab() {
                 </div>
 
                 {/* File table */}
-                <div className="flex-1 overflow-auto">
+                <div className="overflow-hidden">
                     {activeDocuments.length === 0 ? (
                         <div className="flex flex-col items-center justify-center h-full gap-3 text-muted-foreground">
                             <RiFileLine className="h-10 w-10 opacity-30" />
@@ -427,7 +428,15 @@ function DocumentsTab() {
                             </p>
                         </div>
                     ) : (
-                        <table className="w-full text-sm">
+                        <table className="w-full table-fixed text-sm">
+                            <colgroup>
+                                <col className="min-w-0" />
+                                <col className="w-36" />
+                                <col className="w-24" />
+                                <col className="w-28" />
+                                <col className="w-40" />
+                                <col className="w-24" />
+                            </colgroup>
                             <thead className="sticky top-0 bg-background z-10">
                                 <tr className="border-b border-border">
                                     <th className="text-left px-5 py-2.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Naam</th>
@@ -522,10 +531,10 @@ function DocumentRow({
 
     return (
         <tr className="group hover:bg-muted/30 transition-colors">
-            <td className="px-5 py-3">
-                <div className="flex items-center gap-2.5">
-                    <span className="text-base leading-none">{fileIcon(doc.file_ext)}</span>
-                    <span className="font-medium text-foreground truncate max-w-xs" title={doc.name}>{doc.name}</span>
+            <td className="px-5 py-3 min-w-0">
+                <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="text-base leading-none shrink-0">{fileIcon(doc.file_ext)}</span>
+                    <span className="font-medium text-foreground truncate" title={doc.name}>{doc.name}</span>
                 </div>
             </td>
             <td className="px-3 py-3">
@@ -669,7 +678,7 @@ function ChatTab() {
     }
 
     return (
-        <div className="flex h-full overflow-hidden">
+        <div className="flex flex-1 min-w-0 overflow-hidden">
             {/* Session sidebar */}
             <div className="w-56 shrink-0 border-r border-border bg-card flex flex-col overflow-hidden">
                 <div className="shrink-0 p-3 border-b border-border">
