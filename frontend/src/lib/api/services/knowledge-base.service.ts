@@ -52,6 +52,13 @@ export async function moveDocument(id: number, folderId: number | null): Promise
     })
 }
 
+export async function updateDocumentDescription(id: number, description: string): Promise<KbDocument> {
+    return apiFetchJson<KbDocument>(`/kb/documents/${id}/`, {
+        method: "PATCH",
+        body: JSON.stringify({ description }),
+    })
+}
+
 export async function reindexDocument(id: number): Promise<KbDocument> {
     return apiFetchJson<KbDocument>(`/kb/documents/${id}/reindex/`, { method: "POST" })
 }

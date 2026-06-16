@@ -10,6 +10,7 @@ export type KbFolder = {
 export type KbDocument = {
     id: number
     name: string
+    description: string
     folder: number | null
     folder_name: string | null
     file_url: string | null

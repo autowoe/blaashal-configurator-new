@@ -6,9 +6,11 @@ import {
     createFolder, createSession, deleteDocument, deleteFolder, deleteSession,
     getFolders, getDocuments, getSession, getSessions,
     moveDocument, reindexDocument, renameFolder, sendChatMessage, uploadDocument,
+    updateDocumentDescription,
 } from "@/lib/api/services/knowledge-base.service"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { Badge } from "@/components/ui/badge"
 import {
     RiAddLine, RiChat1Line, RiDeleteBinLine, RiFileLine, RiFolder2Line,
@@ -119,6 +121,8 @@ function DocumentsTab() {
     const [newFolderName, setNewFolderName] = useState("")
     const [editingFolderId, setEditingFolderId] = useState<number | null>(null)
     const [editingFolderName, setEditingFolderName] = useState("")
+    const [descriptionDoc, setDescriptionDoc] = useState<KbDocument | null>(null)
+    const [descriptionValue, setDescriptionValue] = useState("")
     const [isDragging, setIsDragging] = useState(false)
     const [uploadProgress, setUploadProgress] = useState<{ done: number; total: number } | null>(null)
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -216,6 +220,21 @@ function DocumentsTab() {
         const updated = await reindexDocument(doc.id)
         setDocuments(prev => prev.map(d => d.id === updated.id ? updated : d))
         toast(`"${doc.name}" opnieuw geïndexeerd (${updated.chunk_count} chunks)`)
+    }
+
+    const handleOpenDescription = (doc: KbDocument) => {
+        setDescriptionDoc(doc)
+        setDescriptionValue(doc.description)
+    }
+
+    const handleSaveDescription = async () => {
+        if (!descriptionDoc) return
+        const updated = await updateDocumentDescription(descriptionDoc.id, descriptionValue)
+        setDocuments(prev => prev.map(d => d.id === updated.id ? updated : d))
+        const reindexed = await reindexDocument(updated.id)
+        setDocuments(prev => prev.map(d => d.id === reindexed.id ? reindexed : d))
+        setDescriptionDoc(null)
+        toast(`Beschrijving opgeslagen en "${updated.name}" opnieuw geïndexeerd`)
     }
 
     const handleMove = async (docId: number, folderId: number | null) => {
@@ -428,6 +447,7 @@ function DocumentsTab() {
                                         onDelete={handleDelete}
                                         onReindex={handleReindex}
                                         onMove={handleMove}
+                                        onEditDescription={handleOpenDescription}
                                     />
                                 ))}
                             </tbody>
@@ -435,6 +455,31 @@ function DocumentsTab() {
                     )}
                 </div>
             </div>
+
+            {/* Description dialog */}
+            <Dialog open={!!descriptionDoc} onOpenChange={open => !open && setDescriptionDoc(null)}>
+                <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Beschrijving — {descriptionDoc?.name}</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col gap-4 pt-2">
+                        <p className="text-xs text-muted-foreground">
+                            Leg in één of twee zinnen uit wat dit document bevat. De beschrijving wordt meegenomen in elke chunk, zodat de AI het document beter vindt bij zoekopdrachten.
+                        </p>
+                        <Textarea
+                            placeholder="Bijv. 'Masterlijst van alle Poly-Nederland luchthal projecten en klanten, inclusief locaties en bouwjaren.'"
+                            value={descriptionValue}
+                            onChange={e => setDescriptionValue(e.target.value)}
+                            rows={4}
+                            autoFocus
+                        />
+                        <div className="flex justify-end gap-2">
+                            <Button variant="outline" onClick={() => setDescriptionDoc(null)}>Annuleren</Button>
+                            <Button onClick={handleSaveDescription}>Opslaan &amp; herindexeren</Button>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             {/* New folder dialog */}
             <Dialog open={newFolderOpen} onOpenChange={setNewFolderOpen}>
@@ -462,13 +507,14 @@ function DocumentsTab() {
 }
 
 function DocumentRow({
-    doc, folders, onDelete, onReindex, onMove,
+    doc, folders, onDelete, onReindex, onMove, onEditDescription,
 }: {
     doc: KbDocument
     folders: KbFolder[]
     onDelete: (doc: KbDocument) => void
     onReindex: (doc: KbDocument) => void
     onMove: (docId: number, folderId: number | null) => void
+    onEditDescription: (doc: KbDocument) => void
 }) {
     const cfg = STATUS_CONFIG[doc.status]
     const date = new Intl.DateTimeFormat("nl-NL", { day: "numeric", month: "short", year: "numeric" })
@@ -507,6 +553,13 @@ function DocumentRow({
             </td>
             <td className="px-3 py-3">
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                        onClick={() => onEditDescription(doc)}
+                        className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                        title={doc.description ? "Beschrijving bewerken" : "Beschrijving toevoegen"}
+                    >
+                        <RiPencilLine className={`h-3.5 w-3.5 ${doc.description ? "text-blue-500" : ""}`} />
+                    </button>
                     {doc.status === "indexed" && (
                         <button
                             onClick={() => onReindex(doc)}
