@@ -28,6 +28,7 @@ class KbDocumentSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "description",
             "folder",
             "folder_name",
             "file_url",
@@ -66,7 +67,8 @@ class KbDocumentUploadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = KbDocument
-        fields = ["file", "folder"]
+        fields = ["file", "folder", "description"]
+        extra_kwargs = {"description": {"required": False, "default": ""}}
 
 
 class KbMessageSerializer(serializers.ModelSerializer):

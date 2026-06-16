@@ -60,21 +60,26 @@ def build_term_freq(tokens: list[str]) -> dict[str, int]:
 
 # ── Chunking ─────────────────────────────────────────────────────────────────
 
-def chunk_text(text: str, doc_name: str) -> list[dict]:
+def chunk_text(text: str, doc_name: str, description: str = "") -> list[dict]:
     """Return list of chunk dicts with text, label, term_frequencies, word_count."""
     words = text.split()
     if not words:
         return []
+
+    desc_prefix = f"[Beschrijving: {description}]\n" if description else ""
+    desc_tokens = tokenize(description) if description else []
 
     chunks = []
     step = CHUNK_WORDS - CHUNK_OVERLAP
     i = 0
     while i < len(words):
         chunk_words = words[i : i + CHUNK_WORDS]
-        chunk_text_str = " ".join(chunk_words)
+        chunk_text_str = desc_prefix + " ".join(chunk_words)
         tokens = tokenize(chunk_text_str)
         name_tokens = tokenize(doc_name)
         for t in name_tokens:
+            tokens.extend([t] * 3)
+        for t in desc_tokens:
             tokens.extend([t] * 3)
 
         label = f"Woorden {i + 1}–{i + len(chunk_words)}"

@@ -27,6 +27,7 @@ class KbDocument(TimeStampedModel):
         related_name="documents",
     )
     name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default="")
     file = models.FileField(upload_to="knowledge_base/")
     file_ext = models.CharField(max_length=20)
     file_size = models.PositiveBigIntegerField()
