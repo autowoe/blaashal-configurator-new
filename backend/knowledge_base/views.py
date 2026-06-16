@@ -85,7 +85,7 @@ class KbDocumentViewSet(viewsets.ModelViewSet):
 
             if doc_status == "indexed" and text:
                 chunks = chunk_text(text, name)
-                embeddings = _safe_embed([c["text"] for c in chunks])
+                embeddings = _safe_embed([f"Document: {name}\n{c['text']}" for c in chunks])
                 KbChunk.objects.bulk_create(
                     [
                         KbChunk(
@@ -123,7 +123,7 @@ class KbDocumentViewSet(viewsets.ModelViewSet):
 
         doc.chunks.all().delete()
         chunks = chunk_text(doc.extracted_text, doc.name)
-        embeddings = _safe_embed([c["text"] for c in chunks])
+        embeddings = _safe_embed([f"Document: {doc.name}\n{c['text']}" for c in chunks])
         KbChunk.objects.bulk_create(
             [
                 KbChunk(

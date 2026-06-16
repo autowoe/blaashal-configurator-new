@@ -17,7 +17,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        qs = KbChunk.objects.all() if options["force"] else KbChunk.objects.filter(embedding=[])
+        qs = KbChunk.objects.select_related("document")
+        if not options["force"]:
+            qs = qs.filter(embedding=[])
         chunks = list(qs)
         total = len(chunks)
 
@@ -29,7 +31,7 @@ class Command(BaseCommand):
 
         for i in range(0, total, EMBED_BATCH):
             batch = chunks[i : i + EMBED_BATCH]
-            texts = [c.text for c in batch]
+            texts = [f"Document: {c.document.name}\n{c.text}" for c in batch]
             embeddings = embed_texts(texts)
             for chunk, emb in zip(batch, embeddings):
                 chunk.embedding = emb
