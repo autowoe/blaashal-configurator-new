@@ -19,7 +19,7 @@ from knowledge_base.serializers import (
     KbSessionSerializer,
 )
 
-MAX_DOC_CHARS = 80_000
+MAX_DOC_CHARS = 300_000
 
 
 def _safe_embed(texts: list[str]) -> list[list[float]]:
