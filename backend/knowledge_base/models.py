@@ -53,6 +53,7 @@ class KbChunk(models.Model):
     text = models.TextField()
     term_frequencies = models.JSONField(default=dict)
     word_count = models.PositiveIntegerField(default=0)
+    embedding = models.JSONField(default=list, blank=True)
 
     class Meta:
         ordering = ["chunk_index"]

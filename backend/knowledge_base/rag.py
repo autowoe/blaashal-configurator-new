@@ -1,6 +1,7 @@
-"""BM25-based RAG: chunking, indexing, retrieval."""
+"""Hybrid RAG: BM25 kandidaatselectie + semantische herranking via Voyage AI."""
 
 import math
+import os
 import re
 
 CHUNK_WORDS = 400
@@ -9,133 +10,34 @@ ROWS_PER_CHUNK = 25
 RETRIEVAL_K = 8
 SCORE_THRESHOLD = 1.0
 
+VOYAGE_MODEL = "voyage-3"
+EMBED_BATCH = 128
+SEMANTIC_CANDIDATE_K = 50
+HYBRID_SEMANTIC_WEIGHT = 0.7
+HYBRID_BM25_WEIGHT = 0.3
+
 STOPWORDS = {
     # NL
-    "de",
-    "het",
-    "een",
-    "en",
-    "van",
-    "in",
-    "is",
-    "dat",
-    "op",
-    "te",
-    "zijn",
-    "voor",
-    "met",
-    "aan",
-    "er",
-    "maar",
-    "als",
-    "bij",
-    "om",
-    "uit",
-    "ook",
-    "nog",
-    "tot",
-    "door",
-    "we",
-    "ze",
-    "ik",
-    "je",
-    "hij",
-    "of",
-    "dit",
-    "die",
-    "worden",
-    "heeft",
-    "hebben",
-    "werd",
-    "waren",
-    "kan",
-    "moet",
-    "niet",
-    "zo",
-    "al",
-    "toch",
-    "meer",
-    "nu",
-    "hier",
-    "dan",
-    "wat",
-    "wie",
-    "alle",
-    "naar",
-    "over",
-    "welke",
+    "de", "het", "een", "en", "van", "in", "is", "dat", "op", "te", "zijn",
+    "voor", "met", "aan", "er", "maar", "als", "bij", "om", "uit", "ook",
+    "nog", "tot", "door", "we", "ze", "ik", "je", "hij", "of", "dit", "die",
+    "worden", "heeft", "hebben", "werd", "waren", "kan", "moet", "niet", "zo",
+    "al", "toch", "meer", "nu", "hier", "dan", "wat", "wie", "alle", "naar",
+    "over", "welke",
     # EN
-    "the",
-    "a",
-    "an",
-    "and",
-    "or",
-    "in",
-    "is",
-    "it",
-    "to",
-    "for",
-    "with",
-    "on",
-    "at",
-    "by",
-    "from",
-    "not",
-    "be",
-    "are",
-    "was",
-    "were",
-    "has",
-    "have",
-    "had",
-    "this",
-    "that",
-    "these",
-    "those",
-    "will",
-    "which",
+    "the", "a", "an", "and", "or", "in", "is", "it", "to", "for", "with",
+    "on", "at", "by", "from", "not", "be", "are", "was", "were", "has",
+    "have", "had", "this", "that", "these", "those", "will", "which",
     # DE
-    "der",
-    "die",
-    "das",
-    "ein",
-    "eine",
-    "und",
-    "oder",
-    "ist",
-    "von",
-    "im",
-    "an",
-    "am",
-    "bei",
-    "mit",
-    "auf",
-    "fur",
-    "zu",
-    "nach",
-    "als",
-    "auch",
-    "sich",
-    "aus",
-    "um",
-    "so",
-    "noch",
-    "werden",
-    "sind",
-    "hat",
-    "haben",
-    "war",
-    "wurde",
-    "kann",
-    "dem",
-    "den",
-    "des",
-    "einer",
-    "eines",
-    "nicht",
+    "der", "die", "das", "ein", "eine", "und", "oder", "ist", "von", "im",
+    "an", "am", "bei", "mit", "auf", "fur", "zu", "nach", "als", "auch",
+    "sich", "aus", "um", "so", "noch", "werden", "sind", "hat", "haben",
+    "war", "wurde", "kann", "dem", "den", "des", "einer", "eines", "nicht",
     "mehr",
 }
 
+
+# ── Tokenization ──────────────────────────────────────────────────────────────
 
 def tokenize(text: str) -> list[str]:
     text = (
@@ -156,6 +58,8 @@ def build_term_freq(tokens: list[str]) -> dict[str, int]:
     return freq
 
 
+# ── Chunking ─────────────────────────────────────────────────────────────────
+
 def chunk_text(text: str, doc_name: str) -> list[dict]:
     """Return list of chunk dicts with text, label, term_frequencies, word_count."""
     words = text.split()
@@ -169,7 +73,6 @@ def chunk_text(text: str, doc_name: str) -> list[dict]:
         chunk_words = words[i : i + CHUNK_WORDS]
         chunk_text_str = " ".join(chunk_words)
         tokens = tokenize(chunk_text_str)
-        # Boost document name tokens
         name_tokens = tokenize(doc_name)
         for t in name_tokens:
             tokens.extend([t] * 3)
@@ -191,8 +94,41 @@ def chunk_text(text: str, doc_name: str) -> list[dict]:
     return chunks
 
 
+# ── Embeddings via Voyage AI ──────────────────────────────────────────────────
+
+def _voyage_client():
+    import voyageai
+    return voyageai.Client(api_key=os.environ["VOYAGE_API_KEY"])
+
+
+def embed_texts(texts: list[str]) -> list[list[float]]:
+    """Embed a list of document texts in batches. Returns list of vectors."""
+    client = _voyage_client()
+    all_embeddings: list[list[float]] = []
+    for i in range(0, len(texts), EMBED_BATCH):
+        batch = texts[i : i + EMBED_BATCH]
+        result = client.embed(batch, model=VOYAGE_MODEL, input_type="document")
+        all_embeddings.extend(result.embeddings)
+    return all_embeddings
+
+
+def embed_query(query: str) -> list[float]:
+    """Embed a single query string."""
+    client = _voyage_client()
+    result = client.embed([query], model=VOYAGE_MODEL, input_type="query")
+    return result.embeddings[0]
+
+
+def cosine_similarity(a: list[float], b: list[float]) -> float:
+    dot = sum(x * y for x, y in zip(a, b))
+    norm_a = math.sqrt(sum(x * x for x in a))
+    norm_b = math.sqrt(sum(x * x for x in b))
+    return dot / (norm_a * norm_b) if norm_a and norm_b else 0.0
+
+
+# ── BM25 ──────────────────────────────────────────────────────────────────────
+
 def compute_idf(all_chunks) -> dict[str, float]:
-    """Compute IDF over all KbChunk objects (queryset or list)."""
     n = len(all_chunks)
     if n == 0:
         return {}
@@ -227,26 +163,71 @@ def bm25_score(
     return score
 
 
+# ── Hybrid retrieval ──────────────────────────────────────────────────────────
+
 def retrieve(query: str, chunks_qs, top_k: int = RETRIEVAL_K) -> list:
     """
-    chunks_qs: Django QuerySet of KbChunk with select_related('document').
-    Returns list of KbChunk objects sorted by BM25 score, above threshold.
+    Hybrid retrieval:
+    1. BM25 over all chunks (embedding column deferred) to find candidates.
+    2. Load embeddings only for the top candidates.
+    3. Semantic reranking with Voyage AI query embedding.
+    Falls back to pure BM25 if no embeddings exist yet.
     """
-    chunks = list(chunks_qs.select_related("document__folder"))
-    if not chunks:
+    # Phase 1: BM25 — load without embedding column for speed
+    chunks_light = list(
+        chunks_qs.defer("embedding").select_related("document__folder")
+    )
+    if not chunks_light:
         return []
 
-    idf = compute_idf(chunks)
-    avg_wc = sum(c.word_count for c in chunks) / len(chunks)
+    idf = compute_idf(chunks_light)
+    avg_wc = sum(c.word_count for c in chunks_light) / len(chunks_light)
     query_tokens = tokenize(query)
 
-    scored = []
-    for chunk in chunks:
-        score = bm25_score(
-            query_tokens, chunk.term_frequencies, chunk.word_count, avg_wc, idf
-        )
-        if score >= SCORE_THRESHOLD:
-            scored.append((score, chunk))
+    bm25_scored = sorted(
+        [
+            (
+                bm25_score(query_tokens, c.term_frequencies, c.word_count, avg_wc, idf),
+                c,
+            )
+            for c in chunks_light
+        ],
+        key=lambda x: x[0],
+        reverse=True,
+    )
 
-    scored.sort(key=lambda x: x[0], reverse=True)
-    return [chunk for _, chunk in scored[:top_k]]
+    # Phase 2: select candidates for semantic reranking
+    has_bm25_signal = bm25_scored and bm25_scored[0][0] >= SCORE_THRESHOLD
+    if has_bm25_signal:
+        # Rerank the top BM25 candidates semantically
+        candidate_pairs = bm25_scored[:SEMANTIC_CANDIDATE_K]
+    else:
+        # No keyword signal — use all chunks for pure semantic search
+        candidate_pairs = bm25_scored
+
+    candidate_ids = [c.id for _, c in candidate_pairs]
+
+    # Load embeddings for candidates only
+    chunks_with_emb = list(
+        chunks_qs.filter(id__in=candidate_ids).select_related("document__folder")
+    )
+    has_embeddings = any(bool(c.embedding) for c in chunks_with_emb)
+
+    if not has_embeddings:
+        # No embeddings yet — pure BM25 fallback
+        return [c for score, c in bm25_scored[:top_k] if score >= SCORE_THRESHOLD]
+
+    # Phase 3: semantic reranking
+    query_emb = embed_query(query)
+    max_bm25 = candidate_pairs[0][0] if candidate_pairs[0][0] > 0 else 1.0
+    id_to_bm25 = {c.id: score for score, c in candidate_pairs}
+
+    combined = []
+    for chunk in chunks_with_emb:
+        bm25_norm = id_to_bm25.get(chunk.id, 0.0) / max_bm25
+        sem = cosine_similarity(query_emb, chunk.embedding) if chunk.embedding else 0.0
+        score = HYBRID_SEMANTIC_WEIGHT * sem + HYBRID_BM25_WEIGHT * bm25_norm
+        combined.append((score, chunk))
+
+    combined.sort(key=lambda x: x[0], reverse=True)
+    return [chunk for _, chunk in combined[:top_k]]

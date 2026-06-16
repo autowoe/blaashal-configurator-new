@@ -10,7 +10,7 @@ from rest_framework.response import Response
 
 from knowledge_base.extraction import extract_text
 from knowledge_base.models import KbChunk, KbDocument, KbFolder, KbMessage, KbSession
-from knowledge_base.rag import chunk_text, retrieve, tokenize
+from knowledge_base.rag import chunk_text, embed_texts, retrieve, tokenize
 from knowledge_base.serializers import (
     KbDocumentSerializer,
     KbDocumentUploadSerializer,
@@ -20,6 +20,16 @@ from knowledge_base.serializers import (
 )
 
 MAX_DOC_CHARS = 80_000
+
+
+def _safe_embed(texts: list[str]) -> list[list[float]]:
+    """Embed texts; returns empty list if VOYAGE_API_KEY is missing or call fails."""
+    if not os.environ.get("VOYAGE_API_KEY"):
+        return []
+    try:
+        return embed_texts(texts)
+    except Exception:
+        return []
 
 
 def _auto_title(question: str) -> str:
@@ -75,6 +85,7 @@ class KbDocumentViewSet(viewsets.ModelViewSet):
 
             if doc_status == "indexed" and text:
                 chunks = chunk_text(text, name)
+                embeddings = _safe_embed([c["text"] for c in chunks])
                 KbChunk.objects.bulk_create(
                     [
                         KbChunk(
@@ -84,8 +95,9 @@ class KbDocumentViewSet(viewsets.ModelViewSet):
                             text=c["text"],
                             term_frequencies=c["term_frequencies"],
                             word_count=c["word_count"],
+                            embedding=embeddings[i] if embeddings else [],
                         )
-                        for c in chunks
+                        for i, c in enumerate(chunks)
                     ]
                 )
                 doc.chunk_count = len(chunks)
@@ -111,6 +123,7 @@ class KbDocumentViewSet(viewsets.ModelViewSet):
 
         doc.chunks.all().delete()
         chunks = chunk_text(doc.extracted_text, doc.name)
+        embeddings = _safe_embed([c["text"] for c in chunks])
         KbChunk.objects.bulk_create(
             [
                 KbChunk(
@@ -120,8 +133,9 @@ class KbDocumentViewSet(viewsets.ModelViewSet):
                     text=c["text"],
                     term_frequencies=c["term_frequencies"],
                     word_count=c["word_count"],
+                    embedding=embeddings[i] if embeddings else [],
                 )
-                for c in chunks
+                for i, c in enumerate(chunks)
             ]
         )
         doc.chunk_count = len(chunks)
