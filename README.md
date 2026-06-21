@@ -101,34 +101,46 @@ De frontend is bereikbaar op `http://localhost:5173`.
 Maak een `.env` aan in de `backend/` map:
 
 ```env
-# Django
-SECRET_KEY=jouw-geheime-sleutel
-DEBUG=True
-ALLOWED_HOSTS=localhost,127.0.0.1
-ENVIRONMENT=development  # of 'production'
+DEBUG=
+SECRET_KEY=
 
-# AI
-ANTHROPIC_API_KEY=
-VOYAGE_API_KEY=
+# CSRF (important for session auth)
+CSRF_TRUSTED_ORIGINS=
+CORS_ALLOWED_ORIGINS=
+ALLOWED_HOSTS=
 
-# Productie: PostgreSQL
+# Database (matches docker-compose service "db")
 POSTGRES_DB=
 POSTGRES_USER=
 POSTGRES_PASSWORD=
+POSTGRES_HOST=
+POSTGRES_PORT=
 
-# Productie: Backblaze B2 (S3-compatibel)
+# Optional but recommended
+DJANGO_SETTINGS_MODULE=
+ENVIRONMENT=
+
+# Optional: timezone
+TIME_ZONE=
+
+# Frontend
+VITE_API_BASE_URL=
+
+# AI
+FAL_KEY=
+OPENAI_API_KEY=
+ANTHROPIC_API_KEY=
+VOYAGE_API_KEY=
+
+# Media storage
 BB_KEY_ID=
 BB_APP_KEY=
 BB_ENDPOINT_URL=
 
-# E-mail (productie)
 EMAIL_HOST=
 EMAIL_HOST_USER=
 EMAIL_HOST_PASSWORD=
-DEFAULT_FROM_EMAIL=noreply@blaashal.nl
-
-# Fal.ai (optioneel)
-FAL_KEY=
+DEFAULT_FROM_EMAIL=
 ```
 
 ---
