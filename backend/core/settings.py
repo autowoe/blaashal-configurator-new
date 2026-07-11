@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "django_filters",
+    "django_extensions",
+    "django_erd_generator",
     # Custom apps
     "organizations",
     "projects",
